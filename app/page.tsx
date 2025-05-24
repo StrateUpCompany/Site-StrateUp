@@ -7,12 +7,7 @@ import TestimonialsSection from "@/components/sections/testimonials-section"
 import FAQSection from "@/components/sections/faq-section"
 import CTASection from "@/components/sections/cta-section"
 import ScriptLoader from "@/components/script-loader"
-import dynamic from "next/dynamic"
-
-// Dynamically import the ChatbotSDR component with SSR disabled
-const ChatbotSDR = dynamic(() => import("@/components/chatbot/chatbot-sdr"), {
-  ssr: false,
-})
+import ChatbotWrapper from "@/components/chatbot/chatbot-wrapper"
 
 export default function Home() {
   return (
@@ -36,7 +31,7 @@ export default function Home() {
       <ScriptLoader src="/js/main.js" type="module" id="main-js" />
 
       {/* Add the chatbot component */}
-      <ChatbotSDR leadType="morno" />
+      <ChatbotWrapper leadType="morno" />
       <Footer />
     </main>
   )

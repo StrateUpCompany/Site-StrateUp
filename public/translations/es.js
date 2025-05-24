@@ -1,38 +1,43 @@
-const esTranslations = {
-  common: {
-    welcome: "Bienvenido a StrateUp",
-    learnMore: "Saber más",
-    contactUs: "Contáctenos",
-    schedule: "Programar consultoría",
-  },
-  home: {
-    hero: {
-      title: "Transforma tu estrategia digital",
-      subtitle: "Resultados medibles para tu negocio",
-      cta: "Hacer diagnóstico gratuito",
-    },
-    services: {
-      title: "Nuestros servicios",
-      description: "Soluciones completas para tu crecimiento digital",
-    },
-    testimonials: {
-      title: "Lo que dicen nuestros clientes",
-      description: "Historias de éxito de quienes confían en StrateUp",
-    },
-  },
-  diagnostic: {
-    title: "Diagnóstico de Madurez Digital",
-    description: "Descubre cómo está tu presencia digital y recibe recomendaciones personalizadas",
-    start: "Iniciar diagnóstico",
-  },
-  contact: {
-    title: "Contáctenos",
-    name: "Nombre",
-    email: "Correo electrónico",
-    message: "Mensaje",
-    send: "Enviar",
-    success: "¡Mensaje enviado con éxito!",
-  },
+const translations = {
+  // Común
+  'home': 'Inicio',
+  'blog': 'Blog',
+  'contact': 'Contacto',
+  'about': 'Acerca de',
+  'services': 'Servicios',
+  'read_more': 'Leer más',
+  'loading': 'Cargando...',
+  'error': 'Error',
+  'success': 'Éxito',
+  
+  // Blog
+  'blog_title': 'Blog StrateUp',
+  'blog_description': 'Artículos y noticias sobre estrategia e innovación',
+  'blog_categories': 'Categorías',
+  'blog_recent_posts': 'Posts Recientes',
+  'blog_featured_posts': 'Posts Destacados',
+  'blog_all_posts': 'Todos los Posts',
+  'blog_no_posts': 'No se encontraron posts',
+  'blog_no_categories': 'No se encontraron categorías',
+  'blog_post_date': 'Fecha',
+  'blog_post_author': 'Autor',
+  'blog_post_category': 'Categoría',
+  'blog_post_tags': 'Etiquetas',
+  'blog_post_related': 'Posts Relacionados',
+  
+  // Newsletter
+  'newsletter_title': 'Suscríbete al Newsletter',
+  'newsletter_description': 'Recibe las últimas noticias y actualizaciones',
+  'newsletter_placeholder': 'Tu mejor correo',
+  'newsletter_button': 'Suscribirse',
+  'newsletter_success': '¡Suscripción exitosa!',
+  'newsletter_error': 'Error al suscribirse',
+  
+  // Footer
+  'footer_rights': 'Todos los derechos reservados',
+  'footer_privacy': 'Política de Privacidad',
+  'footer_terms': 'Términos de Uso',
+  'footer_contact': 'Contáctanos'
 }
 
-export default esTranslations
+export default translations

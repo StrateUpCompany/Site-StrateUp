@@ -1,842 +1,1106 @@
 "use client"
 
-import type React from "react"
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react"
-import { submitDiagnosticForm } from "@/app/actions/diagnostic-actions"
-
+// Interfaces para os tipos de dados do formulário
 interface FormData {
-  // Company Info
-  companyName: string
-  industry: string
-  website: string
-  employeeCount: string
-
-  // Contact Info
-  name: string
-  email: string
-  phone: string
-  position: string
-
-  // Instagram
-  hasInstagram: boolean
-  instagramHandle: string
-  instagramFollowers: string
-  instagramPostFrequency: string
-  instagramEngagement: string
-
-  // Google Business
-  hasGoogleBusiness: boolean
-  googleBusinessClaimed: boolean
-  googleBusinessComplete: boolean
-  googleBusinessReviews: string
-  googleBusinessResponses: boolean
-
-  // Website
-  hasWebsite: boolean
-  websiteMobile: boolean
-  websiteSpeed: string
-  websiteSEO: boolean
-  websiteAnalytics: boolean
-
-  // Commercial
-  salesProcess: boolean
-  crmSystem: boolean
-  leadGeneration: string
-  conversionRate: string
-  salesCycle: string
+  company_name?: string
+  industry?: string
+  company_size?: string
+  respondent_name?: string
+  respondent_email?: string
+  respondent_position?: string
+  has_website?: string
+  has_google_business?: string
+  content_frequency?: string
+  invests_marketing?: string
+  marketing_budget?: string
+  data_decisions?: string
+  digital_challenge?: string
+  social_media?: {
+    [key: string]: boolean
+  }
+  marketing_channels?: {
+    [key: string]: boolean
+  }
+  performance_metrics?: {
+    [key: string]: boolean
+  }
+  digital_goals?: {
+    [key: string]: boolean
+  }
+  priority_areas?: {
+    [key: string]: boolean
+  }
 }
 
-const initialFormData: FormData = {
-  // Company Info
-  companyName: "",
-  industry: "",
-  website: "",
-  employeeCount: "",
+interface ValidationState {
+  isValid: boolean
+  message: string
+}
 
-  // Contact Info
-  name: "",
-  email: "",
-  phone: "",
-  position: "",
-
-  // Instagram
-  hasInstagram: false,
-  instagramHandle: "",
-  instagramFollowers: "",
-  instagramPostFrequency: "",
-  instagramEngagement: "",
-
-  // Google Business
-  hasGoogleBusiness: false,
-  googleBusinessClaimed: false,
-  googleBusinessComplete: false,
-  googleBusinessReviews: "",
-  googleBusinessResponses: false,
-
-  // Website
-  hasWebsite: false,
-  websiteMobile: false,
-  websiteSpeed: "",
-  websiteSEO: false,
-  websiteAnalytics: false,
-
-  // Commercial
-  salesProcess: false,
-  crmSystem: false,
-  leadGeneration: "",
-  conversionRate: "",
-  salesCycle: "",
+interface ErrorMessageProps {
+  message: string
 }
 
 export default function DiagnosticForm() {
-  const router = useRouter()
-  const [formData, setFormData] = useState<FormData>(initialFormData)
-  const [currentStep, setCurrentStep] = useState(1)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [leadScore, setLeadScore] = useState(0)
-  const [leadType, setLeadType] = useState<"frio" | "morno" | "quente">("frio")
-  const totalSteps = 5
+  const [step, setStep] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [submissionComplete, setSubmissionComplete] = useState(false)
+  const [formData, setFormData] = useState<FormData>({})
+  const [validation, setValidation] = useState<ValidationState>({
+    isValid: true,
+    message: ''
+  })
 
-  const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  // Efeito para scroll ao topo quando mudar etapa
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [step])
 
-    // Update lead score when certain fields change
-    if (
-      field === "salesProcess" ||
-      field === "crmSystem" ||
-      field === "websiteAnalytics" ||
-      field === "googleBusinessClaimed" ||
-      field === "instagramFollowers" ||
-      field === "conversionRate"
-    ) {
-      calculateLeadScore({ ...formData, [field]: value })
-    }
-  }
-
-  // Calculate lead score based on form data
-  const calculateLeadScore = (data: FormData) => {
-    let score = 0
-
-    // Company size factor
-    if (data.employeeCount === "201+") score += 15
-    else if (data.employeeCount === "51-200") score += 12
-    else if (data.employeeCount === "21-50") score += 8
-    else if (data.employeeCount === "6-20") score += 5
-    else if (data.employeeCount === "1-5") score += 2
-
-    // Digital presence factors
-    if (data.hasWebsite) score += 10
-    if (data.websiteMobile) score += 5
-    if (data.websiteSEO) score += 8
-    if (data.websiteAnalytics) score += 7
-
-    // Social media factors
-    if (data.hasInstagram) score += 5
-    if (data.instagramFollowers === "mais-10000") score += 10
-    else if (data.instagramFollowers === "5000-10000") score += 8
-    else if (data.instagramFollowers === "1000-5000") score += 5
-
-    // Google Business factors
-    if (data.hasGoogleBusiness) score += 5
-    if (data.googleBusinessClaimed) score += 5
-    if (data.googleBusinessComplete) score += 5
-    if (data.googleBusinessResponses) score += 5
-
-    // Commercial maturity factors
-    if (data.salesProcess) score += 15
-    if (data.crmSystem) score += 10
-
-    if (data.conversionRate === "mais-30") score += 10
-    else if (data.conversionRate === "21-30") score += 8
-    else if (data.conversionRate === "11-20") score += 5
-
-    // Update lead score
-    setLeadScore(score)
-
-    // Categorize lead type
-    if (score >= 70) {
-      setLeadType("quente")
-    } else if (score >= 40) {
-      setLeadType("morno")
-    } else {
-      setLeadType("frio")
-    }
-  }
-
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      if (validateCurrentStep()) {
-        setCurrentStep((prev) => prev + 1)
-        window.scrollTo(0, 0)
-
-        // Calculate lead score when moving to step 3
-        if (currentStep === 2) {
-          calculateLeadScore(formData)
+  // Gerenciar mudanças nos campos
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+    
+    if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: {
+          ...(prev[name as keyof FormData] as Record<string, boolean> || {}),
+          [value]: checked
         }
-      }
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }))
     }
   }
 
-  const handlePrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1)
-      window.scrollTo(0, 0)
+  // Validar etapa atual antes de prosseguir
+  const validateStep = (currentStep: number) => {
+    let isValid = true
+    let message = ''
+
+    switch(currentStep) {
+      case 1:
+        // Validar campos obrigatórios da etapa 1
+        const requiredFields = ['company_name', 'industry', 'company_size', 'respondent_name', 'respondent_email', 'respondent_position']
+        for (const field of requiredFields) {
+          if (!formData[field as keyof FormData]) {
+            isValid = false
+            message = 'Por favor, preencha todos os campos obrigatórios.'
+            break
+          }
+        }
+        // Validar formato de email
+        if (isValid && formData.respondent_email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!emailRegex.test(formData.respondent_email)) {
+            isValid = false
+            message = 'Por favor, informe um endereço de email válido.'
+          }
+        }
+        break
+      
+      case 2:
+        // Validar campos obrigatórios da etapa 2
+        if (!formData.has_website || !formData.has_google_business || !formData.content_frequency) {
+          isValid = false
+          message = 'Por favor, responda todas as perguntas.'
+        }
+        break
+      
+      case 3:
+        // Validar campos obrigatórios da etapa 3
+        if (!formData.invests_marketing || !formData.marketing_budget) {
+          isValid = false
+          message = 'Por favor, responda todas as perguntas.'
+        }
+        break
+      
+      case 4:
+        // Validar campos obrigatórios da etapa 4
+        if (!formData.data_decisions || !formData.digital_challenge || formData.digital_challenge.trim() === '') {
+          isValid = false
+          message = 'Por favor, responda todas as perguntas e compartilhe seu principal desafio digital.'
+        }
+        break
+    }
+
+    setValidation({ isValid, message })
+    return isValid
+  }
+
+  // Avançar para a próxima etapa
+  const nextStep = () => {
+    if (validateStep(step)) {
+      setStep(step + 1)
+      setValidation({ isValid: true, message: '' })
     }
   }
 
-  const validateCurrentStep = (): boolean => {
-    setError(null)
-
-    if (currentStep === 1) {
-      if (!formData.companyName) {
-        setError("Por favor, informe o nome da empresa")
-        return false
-      }
-      if (!formData.industry) {
-        setError("Por favor, selecione o setor de atuação")
-        return false
-      }
-      if (!formData.employeeCount) {
-        setError("Por favor, selecione o número de funcionários")
-        return false
-      }
-    } else if (currentStep === 2) {
-      if (!formData.name) {
-        setError("Por favor, informe seu nome completo")
-        return false
-      }
-      if (!formData.email) {
-        setError("Por favor, informe seu email")
-        return false
-      }
-      if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-        setError("Por favor, informe um email válido")
-        return false
-      }
-      if (!formData.position) {
-        setError("Por favor, informe seu cargo na empresa")
-        return false
-      }
-    }
-
-    return true
+  // Voltar para a etapa anterior
+  const prevStep = () => {
+    setStep(step - 1)
+    setValidation({ isValid: true, message: '' })
   }
 
+  // Enviar formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateCurrentStep()) {
+    if (!validateStep(step)) {
       return
     }
 
-    setIsSubmitting(true)
-    setError(null)
-
+    setLoading(true)
+    
     try {
-      // Calculate final lead score before submission
-      calculateLeadScore(formData)
-
-      const result = await submitDiagnosticForm({
-        ...formData,
-        leadScore,
-        leadType,
-      })
-
-      if (result.success && result.submissionId) {
-        // Redirect to results page with the submission ID
-        router.push(`/resultados/${result.submissionId}?leadType=${leadType}&score=${leadScore}`)
-      } else {
-        setError("Ocorreu um erro ao enviar o diagnóstico. Por favor, tente novamente.")
-        setIsSubmitting(false)
+      // Aqui você implementaria a lógica real de envio de dados
+      // const response = await fetch('/api/diagnostic-submission', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formData),
+      // })
+      
+      // Simular envio
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      setLoading(false)
+      setSubmissionComplete(true)
+      
+      // Opcional: registrar evento de conclusão
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'diagnostic_completion', {
+          'event_category': 'diagnostic',
+          'event_label': 'form_submitted'
+        })
       }
     } catch (error) {
-      console.error("Error submitting form:", error)
-      setError("Ocorreu um erro ao enviar o diagnóstico. Por favor, tente novamente.")
-      setIsSubmitting(false)
+      setLoading(false)
+      setValidation({
+        isValid: false,
+        message: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.'
+      })
     }
   }
 
-  const progressPercentage = (currentStep / totalSteps) * 100
+  // Componente para exibir mensagem de erro
+  const ErrorMessage = ({ message }: ErrorMessageProps) => {
+    if (!message) return null
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium">Progresso</span>
-          <span className="text-sm font-medium">
-            {currentStep} de {totalSteps}
-          </span>
+      <div className="p-3 mt-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+        <div className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {message}
         </div>
-        <Progress value={progressPercentage} className="h-2" />
       </div>
+    )
+  }
 
-      {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-md">{error}</div>}
+  return (
+    <section id="diagnostic-form" className="section bg-gradient-to-b from-white to-gray-50 py-16">
+      <div className="container">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white p-8 rounded-xl shadow-lg">
+            {/* Cabeçalho da página */}
+            {!submissionComplete && (
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">Diagnóstico de Transformação Digital</h2>
+                <p className="text-gray-600">
+                  Descubra o potencial de inovação da sua empresa através de uma avaliação abrangente e personalizada.
+                  <br />O diagnóstico leva apenas 5 minutos para ser preenchido.
+                </p>
+              </div>
+            )}
 
-      {currentStep > 2 && (
-        <div
-          className={`mb-6 p-4 rounded-md ${
-            leadType === "quente"
-              ? "bg-green-50 border border-green-200 text-green-700"
-              : leadType === "morno"
-                ? "bg-yellow-50 border border-yellow-200 text-yellow-700"
-                : "bg-blue-50 border border-blue-200 text-blue-700"
-          }`}
-        >
-          <div className="font-medium mb-1">
-            {leadType === "quente" ? "Lead Quente" : leadType === "morno" ? "Lead Morno" : "Lead Frio"}
+            <form onSubmit={handleSubmit}>
+              {/* Progress Bar */}
+              {!submissionComplete && (
+                <div className="mb-8">
+                  <div className="flex justify-between mb-2">
+                    {[1, 2, 3, 4].map((stepNum) => (
+                      <div key={stepNum} className="text-center">
+                        <div 
+                          className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-1
+                            ${step >= stepNum ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}
+                        >
+                          {stepNum}
           </div>
-          <div className="text-sm">
-            {leadType === "quente"
-              ? "Este lead demonstra alta prontidão para conversão."
-              : leadType === "morno"
-                ? "Este lead demonstra interesse moderado e potencial para desenvolvimento."
-                : "Este lead está em estágio inicial de conscientização."}
+                        <span className="text-xs text-gray-500 hidden sm:block">
+                          {stepNum === 1 && "Empresa"}
+                          {stepNum === 2 && "Presença"}
+                          {stepNum === 3 && "Marketing"}
+                          {stepNum === 4 && "Análise"}
+                        </span>
           </div>
-          <div className="mt-2 bg-white bg-opacity-50 rounded-full h-2.5">
-            <div
-              className={`h-2.5 rounded-full ${
-                leadType === "quente" ? "bg-green-500" : leadType === "morno" ? "bg-yellow-500" : "bg-blue-500"
-              }`}
-              style={{ width: `${Math.min(100, leadScore)}%` }}
+                    ))}
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-500 ease-in-out"
+                      style={{ width: `${(step / 4) * 100}%` }}
             ></div>
           </div>
+                  <div className="flex justify-between mt-2 text-sm text-gray-600">
+                    <span>Etapa {step} de 4</span>
+                    <span>{Math.round((step / 4) * 100)}% concluído</span>
+                  </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        {/* Step 1: Company Information */}
-        {currentStep === 1 && (
+              {/* Mensagem de erro de validação */}
+              {!validation.isValid && <ErrorMessage message={validation.message} />}
+
+              {/* Success Message */}
+              {submissionComplete && (
+                <div className="text-center py-12 animate-fadeIn">
+                  <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Diagnóstico Enviado com Sucesso!</h3>
+                  <div className="max-w-lg mx-auto">
+                    <p className="text-gray-600 mb-8">
+                      Obrigado por completar nosso diagnóstico de maturidade digital. Em breve você receberá o relatório personalizado no seu e-mail com insights estratégicos para sua empresa.
+                    </p>
+                    <ul className="text-left text-gray-600 mb-8 bg-blue-50 p-4 rounded-lg inline-block mx-auto">
+                      <li className="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Análise de presença digital
+                      </li>
+                      <li className="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Mapeamento de estratégias de marketing
+                      </li>
+                      <li className="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Identificação de oportunidades de crescimento
+                      </li>
+                      <li className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Recomendações personalizadas
+                      </li>
+                    </ul>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Link href="/" className="btn btn-primary">
+                        Voltar para Home
+                      </Link>
+                      <Link href="/servicos" className="btn btn-outline">
+                        Conhecer Nossos Serviços
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 1: Informações da Empresa */}
+              {step === 1 && !submissionComplete && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Informações da Empresa</h3>
-
-            <div>
-              <label htmlFor="companyName" className="form-label">
-                Nome da Empresa
-              </label>
-              <input
-                type="text"
-                id="companyName"
-                value={formData.companyName}
-                onChange={(e) => updateFormData("companyName", e.target.value)}
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="industry" className="form-label">
-                Setor de Atuação
-              </label>
-              <select
-                id="industry"
-                value={formData.industry}
-                onChange={(e) => updateFormData("industry", e.target.value)}
-                className="form-input"
-                required
-              >
-                <option value="">Selecione o setor</option>
-                <option value="tecnologia">Tecnologia</option>
-                <option value="saude">Saúde</option>
-                <option value="educacao">Educação</option>
-                <option value="varejo">Varejo</option>
-                <option value="servicos">Serviços</option>
-                <option value="industria">Indústria</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="website" className="form-label">
-                Website
-              </label>
-              <input
-                type="url"
-                id="website"
-                value={formData.website}
-                onChange={(e) => updateFormData("website", e.target.value)}
-                className="form-input"
-                placeholder="https://www.seusite.com.br"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="employeeCount" className="form-label">
-                Número de Funcionários
-              </label>
-              <select
-                id="employeeCount"
-                value={formData.employeeCount}
-                onChange={(e) => updateFormData("employeeCount", e.target.value)}
-                className="form-input"
-                required
-              >
-                <option value="">Selecione</option>
-                <option value="1-5">1-5</option>
-                <option value="6-20">6-20</option>
-                <option value="21-50">21-50</option>
-                <option value="51-200">51-200</option>
-                <option value="201+">201+</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Contact Information */}
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Informações de Contato</h3>
-
-            <div>
-              <label htmlFor="name" className="form-label">
-                Nome Completo
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => updateFormData("name", e.target.value)}
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={formData.email}
-                onChange={(e) => updateFormData("email", e.target.value)}
-                className="form-input"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="form-label">
-                Telefone / WhatsApp
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => updateFormData("phone", e.target.value)}
-                className="form-input"
-                placeholder="(00) 00000-0000"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="position" className="form-label">
-                Cargo na Empresa
-              </label>
-              <input
-                type="text"
-                id="position"
-                value={formData.position}
-                onChange={(e) => updateFormData("position", e.target.value)}
-                className="form-input"
-                required
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Instagram Analysis */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Análise do Instagram</h3>
-
-            <div>
-              <div className="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  id="hasInstagram"
-                  checked={formData.hasInstagram}
-                  onChange={(e) => updateFormData("hasInstagram", e.target.checked)}
-                  className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                />
-                <label htmlFor="hasInstagram" className="ml-2 block text-sm font-medium text-gray-700">
-                  A empresa possui perfil no Instagram?
-                </label>
-              </div>
-
-              {formData.hasInstagram && (
-                <>
-                  <div className="mb-4">
-                    <label htmlFor="instagramHandle" className="form-label">
-                      Nome de usuário no Instagram
-                    </label>
-                    <input
-                      type="text"
-                      id="instagramHandle"
-                      value={formData.instagramHandle}
-                      onChange={(e) => updateFormData("instagramHandle", e.target.value)}
-                      className="form-input"
-                      placeholder="@suaempresa"
-                    />
+                  <div className="border-l-4 border-primary pl-4 mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800">Informações da Empresa</h3>
+                    <p className="text-gray-500 text-sm mt-1">Conte-nos um pouco sobre sua organização</p>
                   </div>
 
-                  <div className="mb-4">
-                    <label htmlFor="instagramFollowers" className="form-label">
-                      Número aproximado de seguidores
+                  <div className="grid md:grid-cols-2 gap-6">
+            <div>
+                      <label htmlFor="company_name" className="form-label">Nome da Empresa <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                        id="company_name" 
+                        name="company_name" 
+                className="form-input"
+                        onChange={handleChange}
+                        value={formData.company_name || ''}
+                required
+              />
+            </div>
+
+            <div>
+                      <label htmlFor="industry" className="form-label">Setor de Atuação <span className="text-red-500">*</span></label>
+              <select
+                id="industry"
+                        name="industry" 
+                className="form-input"
+                        onChange={handleChange}
+                        value={formData.industry || ''}
+                required
+              >
+                        <option value="">Selecione...</option>
+                        <option value="technology">Tecnologia</option>
+                        <option value="retail">Varejo</option>
+                        <option value="healthcare">Saúde</option>
+                        <option value="education">Educação</option>
+                        <option value="finance">Finanças</option>
+                        <option value="manufacturing">Indústria</option>
+                        <option value="services">Serviços</option>
+                        <option value="other">Outro</option>
+              </select>
+            </div>
+            </div>
+
+            <div>
+                    <label htmlFor="company_size" className="form-label">Tamanho da Empresa <span className="text-red-500">*</span></label>
+              <select
+                      id="company_size" 
+                      name="company_size" 
+                className="form-input"
+                      onChange={handleChange}
+                      value={formData.company_size || ''}
+                required
+              >
+                      <option value="">Selecione...</option>
+                      <option value="1-10">1-10 funcionários</option>
+                      <option value="11-50">11-50 funcionários</option>
+                      <option value="51-200">51-200 funcionários</option>
+                      <option value="201-500">201-500 funcionários</option>
+                      <option value="501+">Mais de 500 funcionários</option>
+              </select>
+            </div>
+
+                  <hr className="my-6" />
+                  <p className="text-sm text-gray-500 mb-4">Informações do respondente</p>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+            <div>
+                      <label htmlFor="respondent_name" className="form-label">Seu Nome <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                        id="respondent_name" 
+                        name="respondent_name" 
+                className="form-input"
+                        onChange={handleChange}
+                        value={formData.respondent_name || ''}
+                required
+              />
+            </div>
+
+            <div>
+                      <label htmlFor="respondent_position" className="form-label">Seu Cargo <span className="text-red-500">*</span></label>
+              <input
+                        type="text" 
+                        id="respondent_position" 
+                        name="respondent_position" 
+                className="form-input"
+                        onChange={handleChange}
+                        value={formData.respondent_position || ''}
+                required
+              />
+            </div>
+            </div>
+
+            <div>
+                    <label htmlFor="respondent_email" className="form-label">Seu Email <span className="text-red-500">*</span></label>
+              <input
+                      type="email" 
+                      id="respondent_email" 
+                      name="respondent_email" 
+                className="form-input"
+                      onChange={handleChange}
+                      value={formData.respondent_email || ''}
+                required
+              />
+                    <p className="text-xs text-gray-500 mt-1">Enviaremos o relatório de diagnóstico para este email</p>
+            </div>
+          </div>
+        )}
+
+              {/* Step 2: Presença Digital */}
+              {step === 2 && !submissionComplete && (
+          <div className="space-y-6">
+                  <div className="border-l-4 border-primary pl-4 mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800">Presença Digital</h3>
+                    <p className="text-gray-500 text-sm mt-1">Avalie a presença online da sua empresa</p>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Sua empresa possui um website? <span className="text-red-500">*</span></p>
+                    <div className="flex space-x-6">
+                      <label className="inline-flex items-center">
+                <input
+                          type="radio" 
+                          name="has_website" 
+                          value="yes" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_website === 'yes'}
+                          required 
+                        />
+                        <span className="ml-2">Sim</span>
+                </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="has_website" 
+                          value="no" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_website === 'no'}
+                        />
+                        <span className="ml-2">Não</span>
                     </label>
+                      <label className="inline-flex items-center">
+                    <input
+                          type="radio" 
+                          name="has_website" 
+                          value="development" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_website === 'development'}
+                        />
+                        <span className="ml-2">Em desenvolvimento</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Quais redes sociais sua empresa utiliza ativamente?</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="facebook" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.facebook || false}
+                        />
+                        <span className="ml-2">Facebook</span>
+                    </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="instagram" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.instagram || false}
+                        />
+                        <span className="ml-2">Instagram</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="linkedin" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.linkedin || false}
+                        />
+                        <span className="ml-2">LinkedIn</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="twitter" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.twitter || false}
+                        />
+                        <span className="ml-2">Twitter/X</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="youtube" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.youtube || false}
+                        />
+                        <span className="ml-2">YouTube</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="social_media" 
+                          value="tiktok" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.social_media?.tiktok || false}
+                        />
+                        <span className="ml-2">TikTok</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="form-label">Com que frequência sua empresa atualiza o conteúdo digital? <span className="text-red-500">*</span></p>
                     <select
-                      id="instagramFollowers"
-                      value={formData.instagramFollowers}
-                      onChange={(e) => updateFormData("instagramFollowers", e.target.value)}
+                      name="content_frequency" 
                       className="form-input"
+                      onChange={handleChange}
+                      value={formData.content_frequency || ''}
+                      required
                     >
-                      <option value="">Selecione</option>
-                      <option value="menos-500">Menos de 500</option>
-                      <option value="500-1000">500 - 1.000</option>
-                      <option value="1000-5000">1.000 - 5.000</option>
-                      <option value="5000-10000">5.000 - 10.000</option>
-                      <option value="mais-10000">Mais de 10.000</option>
+                      <option value="">Selecione...</option>
+                      <option value="daily">Diariamente</option>
+                      <option value="weekly">Semanalmente</option>
+                      <option value="monthly">Mensalmente</option>
+                      <option value="quarterly">Trimestralmente</option>
+                      <option value="rarely">Raramente</option>
+                      <option value="never">Nunca</option>
                     </select>
                   </div>
 
-                  <div className="mb-4">
-                    <label htmlFor="instagramPostFrequency" className="form-label">
-                      Frequência de publicação
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Sua empresa possui perfil no Google Meu Negócio? <span className="text-red-500">*</span></p>
+                    <div className="flex space-x-6">
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="has_google_business" 
+                          value="yes" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_google_business === 'yes'}
+                          required 
+                        />
+                        <span className="ml-2">Sim, atualizado</span>
                     </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="has_google_business" 
+                          value="outdated" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_google_business === 'outdated'}
+                        />
+                        <span className="ml-2">Sim, desatualizado</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="has_google_business" 
+                          value="no" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.has_google_business === 'no'}
+                        />
+                        <span className="ml-2">Não</span>
+                      </label>
+                  </div>
+            </div>
+          </div>
+        )}
+
+              {/* Step 3: Marketing Digital */}
+              {step === 3 && !submissionComplete && (
+          <div className="space-y-6">
+                  <div className="border-l-4 border-primary pl-4 mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800">Marketing Digital</h3>
+                    <p className="text-gray-500 text-sm mt-1">Entenda como sua empresa utiliza estratégias digitais</p>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Sua empresa investe em marketing digital? <span className="text-red-500">*</span></p>
+                    <div className="flex flex-wrap gap-4">
+                      <label className="inline-flex items-center">
+                <input
+                          type="radio" 
+                          name="invests_marketing" 
+                          value="yes" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.invests_marketing === 'yes'}
+                          required 
+                        />
+                        <span className="ml-2">Sim, regularmente</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="invests_marketing" 
+                          value="occasionally" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.invests_marketing === 'occasionally'}
+                        />
+                        <span className="ml-2">Sim, ocasionalmente</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="invests_marketing" 
+                          value="no" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.invests_marketing === 'no'}
+                        />
+                        <span className="ml-2">Não</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="invests_marketing" 
+                          value="planning" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.invests_marketing === 'planning'}
+                        />
+                        <span className="ml-2">Planejando iniciar</span>
+                </label>
+                    </div>
+              </div>
+
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Quais canais de marketing digital sua empresa utiliza?</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="marketing_channels" 
+                          value="social_ads" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.social_ads || false}
+                        />
+                        <span className="ml-2">Anúncios em redes sociais</span>
+                    </label>
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="marketing_channels" 
+                          value="search_ads" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.search_ads || false}
+                        />
+                        <span className="ml-2">Google Ads/Search</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="marketing_channels" 
+                          value="email" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.email || false}
+                        />
+                        <span className="ml-2">Email Marketing</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="marketing_channels" 
+                          value="content" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.content || false}
+                        />
+                        <span className="ml-2">Marketing de Conteúdo</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="marketing_channels" 
+                          value="influencer" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.influencer || false}
+                        />
+                        <span className="ml-2">Marketing de Influência</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="marketing_channels" 
+                          value="seo" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.marketing_channels?.seo || false}
+                        />
+                        <span className="ml-2">SEO e Otimização</span>
+                    </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="form-label">Quanto sua empresa investe mensalmente em marketing digital? <span className="text-red-500">*</span></p>
                     <select
-                      id="instagramPostFrequency"
-                      value={formData.instagramPostFrequency}
-                      onChange={(e) => updateFormData("instagramPostFrequency", e.target.value)}
+                      name="marketing_budget" 
                       className="form-input"
+                      onChange={handleChange}
+                      value={formData.marketing_budget || ''}
+                      required
                     >
-                      <option value="">Selecione</option>
-                      <option value="diaria">Diária</option>
-                      <option value="semanal">Semanal</option>
-                      <option value="quinzenal">Quinzenal</option>
-                      <option value="mensal">Mensal</option>
-                      <option value="irregular">Irregular</option>
+                      <option value="">Selecione...</option>
+                      <option value="none">Não investimos</option>
+                      <option value="under1k">Menos de R$ 1.000</option>
+                      <option value="1k-5k">R$ 1.000 a R$ 5.000</option>
+                      <option value="5k-10k">R$ 5.000 a R$ 10.000</option>
+                      <option value="10k-20k">R$ 10.000 a R$ 20.000</option>
+                      <option value="over20k">Mais de R$ 20.000</option>
                     </select>
                   </div>
 
                   <div>
-                    <label htmlFor="instagramEngagement" className="form-label">
-                      Nível de engajamento (curtidas, comentários)
+                    <p className="form-label">Como você mede o desempenho das campanhas digitais?</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="performance_metrics" 
+                          value="analytics" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.performance_metrics?.analytics || false}
+                        />
+                        <span className="ml-2">Google Analytics</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="performance_metrics" 
+                          value="platform_metrics" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.performance_metrics?.platform_metrics || false}
+                        />
+                        <span className="ml-2">Métricas das plataformas</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="performance_metrics" 
+                          value="crm" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.performance_metrics?.crm || false}
+                        />
+                        <span className="ml-2">CRM</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="performance_metrics" 
+                          value="custom_dashboard" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.performance_metrics?.custom_dashboard || false}
+                        />
+                        <span className="ml-2">Dashboard personalizado</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="performance_metrics" 
+                          value="none" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.performance_metrics?.none || false}
+                        />
+                        <span className="ml-2">Não medimos</span>
                     </label>
-                    <select
-                      id="instagramEngagement"
-                      value={formData.instagramEngagement}
-                      onChange={(e) => updateFormData("instagramEngagement", e.target.value)}
-                      className="form-input"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="muito-baixo">Muito baixo</option>
-                      <option value="baixo">Baixo</option>
-                      <option value="medio">Médio</option>
-                      <option value="alto">Alto</option>
-                      <option value="muito-alto">Muito alto</option>
-                    </select>
                   </div>
-                </>
-              )}
             </div>
           </div>
         )}
 
-        {/* Step 4: Google Business Analysis */}
-        {currentStep === 4 && (
+              {/* Step 4: Análise e Desafios */}
+              {step === 4 && !submissionComplete && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Análise do Google Meu Negócio</h3>
+                  <div className="border-l-4 border-primary pl-4 mb-6">
+                    <h3 className="text-xl font-semibold text-gray-800">Análise e Desafios</h3>
+                    <p className="text-gray-500 text-sm mt-1">Compartilhe seus principais desafios e objetivos digitais</p>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="form-label mb-3">Sua empresa utiliza dados para tomada de decisões estratégicas? <span className="text-red-500">*</span></p>
+                    <div className="flex flex-wrap gap-4">
+                      <label className="inline-flex items-center">
+                <input
+                          type="radio" 
+                          name="data_decisions" 
+                          value="yes" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.data_decisions === 'yes'}
+                          required 
+                        />
+                        <span className="ml-2">Sim, regularmente</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="data_decisions" 
+                          value="sometimes" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.data_decisions === 'sometimes'}
+                        />
+                        <span className="ml-2">Às vezes</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="data_decisions" 
+                          value="rarely" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.data_decisions === 'rarely'}
+                        />
+                        <span className="ml-2">Raramente</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="radio" 
+                          name="data_decisions" 
+                          value="no" 
+                          className="form-radio"
+                          onChange={handleChange}
+                          checked={formData.data_decisions === 'no'}
+                        />
+                        <span className="ml-2">Não</span>
+                </label>
+                    </div>
+              </div>
+
+                  <div>
+                    <p className="form-label">Quais são os principais objetivos da sua estratégia digital?</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="digital_goals" 
+                          value="brand_awareness" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.brand_awareness || false}
+                        />
+                        <span className="ml-2">Reconhecimento de marca</span>
+                    </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="digital_goals" 
+                          value="lead_generation" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.lead_generation || false}
+                        />
+                        <span className="ml-2">Geração de leads</span>
+                    </label>
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="digital_goals" 
+                          value="sales" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.sales || false}
+                        />
+                        <span className="ml-2">Aumento de vendas</span>
+                    </label>
+                      <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                          name="digital_goals" 
+                          value="customer_loyalty" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.customer_loyalty || false}
+                        />
+                        <span className="ml-2">Fidelização de clientes</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="digital_goals" 
+                          value="thought_leadership" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.thought_leadership || false}
+                        />
+                        <span className="ml-2">Autoridade no setor</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="digital_goals" 
+                          value="customer_service" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.digital_goals?.customer_service || false}
+                        />
+                        <span className="ml-2">Atendimento ao cliente</span>
+                    </label>
+                  </div>
+            </div>
 
             <div>
-              <div className="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  id="hasGoogleBusiness"
-                  checked={formData.hasGoogleBusiness}
-                  onChange={(e) => updateFormData("hasGoogleBusiness", e.target.checked)}
-                  className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                />
-                <label htmlFor="hasGoogleBusiness" className="ml-2 block text-sm font-medium text-gray-700">
-                  A empresa possui perfil no Google Meu Negócio?
-                </label>
-              </div>
-
-              {formData.hasGoogleBusiness && (
-                <>
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      id="googleBusinessClaimed"
-                      checked={formData.googleBusinessClaimed}
-                      onChange={(e) => updateFormData("googleBusinessClaimed", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="googleBusinessClaimed" className="ml-2 block text-sm font-medium text-gray-700">
-                      A ficha foi reivindicada e está sob controle da empresa?
-                    </label>
-                  </div>
-
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      id="googleBusinessComplete"
-                      checked={formData.googleBusinessComplete}
-                      onChange={(e) => updateFormData("googleBusinessComplete", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="googleBusinessComplete" className="ml-2 block text-sm font-medium text-gray-700">
-                      O perfil está completo (endereço, telefone, horários, fotos)?
-                    </label>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="googleBusinessReviews" className="form-label">
-                      Quantidade aproximada de avaliações
-                    </label>
-                    <select
-                      id="googleBusinessReviews"
-                      value={formData.googleBusinessReviews}
-                      onChange={(e) => updateFormData("googleBusinessReviews", e.target.value)}
+                    <label htmlFor="digital_challenge" className="form-label">Qual é o principal desafio digital da sua empresa atualmente? <span className="text-red-500">*</span></label>
+                    <textarea 
+                      id="digital_challenge" 
+                      name="digital_challenge" 
+                      rows={4}
                       className="form-input"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="0">0</option>
-                      <option value="1-10">1 - 10</option>
-                      <option value="11-50">11 - 50</option>
-                      <option value="51-100">51 - 100</option>
-                      <option value="mais-100">Mais de 100</option>
-                    </select>
+                      placeholder="Descreva seu principal desafio..."
+                      onChange={handleChange}
+                      value={formData.digital_challenge || ''}
+                      required
+                    ></textarea>
                   </div>
 
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="googleBusinessResponses"
-                      checked={formData.googleBusinessResponses}
-                      onChange={(e) => updateFormData("googleBusinessResponses", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="googleBusinessResponses" className="ml-2 block text-sm font-medium text-gray-700">
-                      A empresa responde regularmente às avaliações?
-                    </label>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Website and Commercial Analysis */}
-        {currentStep === 5 && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Análise do Site e Processo Comercial</h3>
-
-            <div className="mb-6">
-              <h4 className="text-lg font-medium mb-3">Website</h4>
-
-              <div className="flex items-center mb-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="form-label mb-3">Quais áreas de transformação digital você gostaria de priorizar?</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <label className="inline-flex items-center">
                 <input
                   type="checkbox"
-                  id="hasWebsite"
-                  checked={formData.hasWebsite}
-                  onChange={(e) => updateFormData("hasWebsite", e.target.checked)}
-                  className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                />
-                <label htmlFor="hasWebsite" className="ml-2 block text-sm font-medium text-gray-700">
-                  A empresa possui website?
+                          name="priority_areas" 
+                          value="website_optimization" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.website_optimization || false}
+                        />
+                        <span className="ml-2">Otimização de website</span>
                 </label>
-              </div>
-
-              {formData.hasWebsite && (
-                <>
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      id="websiteMobile"
-                      checked={formData.websiteMobile}
-                      onChange={(e) => updateFormData("websiteMobile", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="websiteMobile" className="ml-2 block text-sm font-medium text-gray-700">
-                      O site é responsivo (adaptado para dispositivos móveis)?
-                    </label>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="websiteSpeed" className="form-label">
-                      Velocidade de carregamento do site
-                    </label>
-                    <select
-                      id="websiteSpeed"
-                      value={formData.websiteSpeed}
-                      onChange={(e) => updateFormData("websiteSpeed", e.target.value)}
-                      className="form-input"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="muito-lento">Muito lento</option>
-                      <option value="lento">Lento</option>
-                      <option value="medio">Médio</option>
-                      <option value="rapido">Rápido</option>
-                      <option value="muito-rapido">Muito rápido</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      id="websiteSEO"
-                      checked={formData.websiteSEO}
-                      onChange={(e) => updateFormData("websiteSEO", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="websiteSEO" className="ml-2 block text-sm font-medium text-gray-700">
-                      O site possui otimização para SEO (meta tags, alt text, etc.)?
-                    </label>
-                  </div>
-
-                  <div className="flex items-center mb-4">
-                    <input
-                      type="checkbox"
-                      id="websiteAnalytics"
-                      checked={formData.websiteAnalytics}
-                      onChange={(e) => updateFormData("websiteAnalytics", e.target.checked)}
-                      className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                    />
-                    <label htmlFor="websiteAnalytics" className="ml-2 block text-sm font-medium text-gray-700">
-                      O site possui ferramentas de análise (Google Analytics, etc.)?
-                    </label>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div>
-              <h4 className="text-lg font-medium mb-3">Processo Comercial</h4>
-
-              <div className="flex items-center mb-4">
+                      <label className="inline-flex items-center">
                 <input
                   type="checkbox"
-                  id="salesProcess"
-                  checked={formData.salesProcess}
-                  onChange={(e) => updateFormData("salesProcess", e.target.checked)}
-                  className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                />
-                <label htmlFor="salesProcess" className="ml-2 block text-sm font-medium text-gray-700">
-                  A empresa possui um processo de vendas estruturado?
+                          name="priority_areas" 
+                          value="social_media_strategy" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.social_media_strategy || false}
+                        />
+                        <span className="ml-2">Estratégia em redes sociais</span>
                 </label>
-              </div>
-
-              <div className="flex items-center mb-4">
-                <input
-                  type="checkbox"
-                  id="crmSystem"
-                  checked={formData.crmSystem}
-                  onChange={(e) => updateFormData("crmSystem", e.target.checked)}
-                  className="h-4 w-4 text-[#0066ff] focus:ring-[#0066ff] border-gray-300 rounded"
-                />
-                <label htmlFor="crmSystem" className="ml-2 block text-sm font-medium text-gray-700">
-                  Utiliza algum sistema de CRM?
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="priority_areas" 
+                          value="data_analytics" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.data_analytics || false}
+                        />
+                        <span className="ml-2">Análise de dados</span>
                 </label>
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="leadGeneration" className="form-label">
-                  Principal fonte de geração de leads
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="priority_areas" 
+                          value="automation" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.automation || false}
+                        />
+                        <span className="ml-2">Automação de marketing</span>
                 </label>
-                <select
-                  id="leadGeneration"
-                  value={formData.leadGeneration}
-                  onChange={(e) => updateFormData("leadGeneration", e.target.value)}
-                  className="form-input"
-                >
-                  <option value="">Selecione</option>
-                  <option value="indicacoes">Indicações</option>
-                  <option value="redes-sociais">Redes Sociais</option>
-                  <option value="google">Google (orgânico)</option>
-                  <option value="anuncios">Anúncios pagos</option>
-                  <option value="eventos">Eventos</option>
-                  <option value="outros">Outros</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="conversionRate" className="form-label">
-                  Taxa média de conversão (leads para clientes)
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="priority_areas" 
+                          value="ecommerce" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.ecommerce || false}
+                        />
+                        <span className="ml-2">E-commerce</span>
                 </label>
-                <select
-                  id="conversionRate"
-                  value={formData.conversionRate}
-                  onChange={(e) => updateFormData("conversionRate", e.target.value)}
-                  className="form-input"
-                >
-                  <option value="">Selecione</option>
-                  <option value="menos-5">Menos de 5%</option>
-                  <option value="5-10">5% - 10%</option>
-                  <option value="11-20">11% - 20%</option>
-                  <option value="21-30">21% - 30%</option>
-                  <option value="mais-30">Mais de 30%</option>
-                  <option value="nao-sei">Não sei</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="salesCycle" className="form-label">
-                  Ciclo médio de vendas
-                </label>
-                <select
-                  id="salesCycle"
-                  value={formData.salesCycle}
-                  onChange={(e) => updateFormData("salesCycle", e.target.value)}
-                  className="form-input"
-                >
-                  <option value="">Selecione</option>
-                  <option value="menos-7">Menos de 7 dias</option>
-                  <option value="7-30">7 - 30 dias</option>
-                  <option value="1-3">1 - 3 meses</option>
-                  <option value="3-6">3 - 6 meses</option>
-                  <option value="mais-6">Mais de 6 meses</option>
-                  <option value="nao-sei">Não sei</option>
-                </select>
+                      <label className="inline-flex items-center">
+                        <input 
+                          type="checkbox" 
+                          name="priority_areas" 
+                          value="digital_training" 
+                          className="form-checkbox"
+                          onChange={handleChange}
+                          checked={formData.priority_areas?.digital_training || false}
+                        />
+                        <span className="ml-2">Capacitação digital</span>
+                      </label>
               </div>
             </div>
           </div>
         )}
 
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex justify-between">
-          {currentStep > 1 ? (
-            <Button type="button" variant="outline" onClick={handlePrev} disabled={isSubmitting}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
-            </Button>
-          ) : (
-            <div></div>
-          )}
-
-          {currentStep < totalSteps ? (
-            <Button type="button" onClick={handleNext}>
-              Próximo <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button type="submit" disabled={isSubmitting} className="bg-[#ff8c00] hover:bg-[#cc7000]">
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              {/* Form Navigation Buttons */}
+              {!submissionComplete && (
+                <div className="mt-8 flex flex-col sm:flex-row-reverse sm:justify-between gap-4">
+                  {step < 4 ? (
+                    <button 
+                      type="button" 
+                      className="btn btn-primary flex-1 sm:flex-none sm:min-w-[150px]"
+                      onClick={nextStep}
+                    >
+                      Próxima Etapa
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary flex-1 sm:flex-none sm:min-w-[150px] flex items-center justify-center"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
                   Enviando...
                 </>
               ) : (
                 <>
-                  Finalizar Diagnóstico <CheckCircle className="ml-2 h-4 w-4" />
+                          Enviar Diagnóstico
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v8a1 1 0 11-2 0V6a1 1 0 011-1z" clipRule="evenodd" />
+                          </svg>
                 </>
               )}
-            </Button>
+                    </button>
+                  )}
+                  
+                  {step > 1 && (
+                    <button 
+                      type="button" 
+                      className="btn btn-outline flex-1 sm:flex-none sm:min-w-[150px]"
+                      onClick={prevStep}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                      Voltar
+                    </button>
           )}
         </div>
+              )}
+
+              {/* Privacy Policy Notice */}
+              {!submissionComplete && step === 4 && (
+                <div className="mt-6 text-xs text-gray-500">
+                  <p>Ao enviar este formulário, você concorda com nossa <Link href="/politica-privacidade" className="text-primary hover:underline">Política de Privacidade</Link> e autoriza o uso das informações fornecidas para análise e contato.</p>
+                </div>
+              )}
       </form>
     </div>
+        </div>
+      </div>
+    </section>
   )
 }

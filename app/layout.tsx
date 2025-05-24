@@ -5,6 +5,10 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Analytics from "@/components/analytics/analytics"
 import { Suspense } from "react"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { LoadingPage } from "@/components/ui/loading"
+import '@fortawesome/fontawesome-free/css/all.min.css'
+import './diagnostico/styles.css'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -76,10 +80,14 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <Suspense>{children}</Suspense>
-        </ThemeProvider>
-        <Analytics />
+        <ErrorBoundary>
+          <ThemeProvider attribute="class" defaultTheme="light">
+            <Suspense fallback={<LoadingPage />}>
+              {children}
+            </Suspense>
+          </ThemeProvider>
+          <Analytics />
+        </ErrorBoundary>
       </body>
     </html>
   )

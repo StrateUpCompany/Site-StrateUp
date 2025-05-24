@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import LanguageSwitcher from "@/components/language-switcher"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import Logo from "@/components/ui/logo"
 
 export default function Header() {

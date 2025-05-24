@@ -1,38 +1,43 @@
-const enTranslations = {
-  common: {
-    welcome: "Welcome to StrateUp",
-    learnMore: "Learn more",
-    contactUs: "Contact us",
-    schedule: "Schedule consultation",
-  },
-  home: {
-    hero: {
-      title: "Transform your digital strategy",
-      subtitle: "Measurable results for your business",
-      cta: "Take free diagnostic",
-    },
-    services: {
-      title: "Our services",
-      description: "Complete solutions for your digital growth",
-    },
-    testimonials: {
-      title: "What our clients say",
-      description: "Success stories from those who trust StrateUp",
-    },
-  },
-  diagnostic: {
-    title: "Digital Maturity Diagnostic",
-    description: "Discover how your digital presence is doing and receive personalized recommendations",
-    start: "Start diagnostic",
-  },
-  contact: {
-    title: "Contact us",
-    name: "Name",
-    email: "Email",
-    message: "Message",
-    send: "Send",
-    success: "Message sent successfully!",
-  },
+const translations = {
+  // Common
+  'home': 'Home',
+  'blog': 'Blog',
+  'contact': 'Contact',
+  'about': 'About',
+  'services': 'Services',
+  'read_more': 'Read more',
+  'loading': 'Loading...',
+  'error': 'Error',
+  'success': 'Success',
+  
+  // Blog
+  'blog_title': 'StrateUp Blog',
+  'blog_description': 'Articles and news about strategy and innovation',
+  'blog_categories': 'Categories',
+  'blog_recent_posts': 'Recent Posts',
+  'blog_featured_posts': 'Featured Posts',
+  'blog_all_posts': 'All Posts',
+  'blog_no_posts': 'No posts found',
+  'blog_no_categories': 'No categories found',
+  'blog_post_date': 'Date',
+  'blog_post_author': 'Author',
+  'blog_post_category': 'Category',
+  'blog_post_tags': 'Tags',
+  'blog_post_related': 'Related Posts',
+  
+  // Newsletter
+  'newsletter_title': 'Subscribe to Newsletter',
+  'newsletter_description': 'Get the latest news and updates',
+  'newsletter_placeholder': 'Your best email',
+  'newsletter_button': 'Subscribe',
+  'newsletter_success': 'Subscription successful!',
+  'newsletter_error': 'Error subscribing',
+  
+  // Footer
+  'footer_rights': 'All rights reserved',
+  'footer_privacy': 'Privacy Policy',
+  'footer_terms': 'Terms of Use',
+  'footer_contact': 'Contact Us'
 }
 
-export default enTranslations
+export default translations

@@ -1,68 +1,90 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
-import { Globe } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState } from 'react'
+import { useTranslations } from '@/hooks/use-translations'
+import { LanguageCode } from '@/types/translations'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const languages = [
-  { code: "pt-BR", name: "Português" },
-  { code: "en", name: "English" },
-  { code: "es", name: "Español" },
+const languages: { code: LanguageCode; name: string; flag: string }[] = [
+  { code: 'pt-BR', name: 'Português', flag: '🇧🇷' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' }
 ]
 
-export default function LanguageSwitcher() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [currentLang, setCurrentLang] = useState("pt-BR")
+export function LanguageSwitcher() {
+  const { currentLang, changeLanguage, isLoading, error } = useTranslations()
+  const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    // In a real implementation, this would get the language from cookies or localStorage
-    const savedLang = localStorage.getItem("language") || "pt-BR"
-    setCurrentLang(savedLang)
-  }, [])
-
-  const handleLanguageChange = (langCode: string) => {
-    // In a real implementation, this would:
-    // 1. Set a cookie or localStorage value
-    // 2. Redirect to the translated version of the current page
-    localStorage.setItem("language", langCode)
-    setCurrentLang(langCode)
-
-    // Example of how you might handle language-specific routing
-    // router.push(`/${langCode}${pathname}`)
-
-    // For now, we'll just reload the page to simulate a language change
-    // window.location.reload()
-
-    // Track language change in analytics
-    if (typeof window !== "undefined" && window.gtag) {
-      window.gtag("event", "language_change", {
-        language: langCode,
-      })
-    }
+  const handleLanguageChange = async (lang: LanguageCode) => {
+    if (lang === currentLang || isLoading) return
+    await changeLanguage(lang)
+    setIsOpen(false)
   }
 
+  const currentLanguage = languages.find(lang => lang.code === currentLang)
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-          <Globe className="h-4 w-4" />
-          <span className="hidden md:inline">{languages.find((l) => l.code === currentLang)?.name}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => handleLanguageChange(lang.code)}
-            className={currentLang === lang.code ? "bg-gray-100 font-medium" : ""}
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+        disabled={isLoading}
+      >
+        <span className="text-xl">{currentLanguage?.flag}</span>
+        <span className="text-sm font-medium">{currentLanguage?.name}</span>
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          ▼
+        </motion.span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5"
           >
-            {lang.name}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <div className="py-1">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  disabled={isLoading || lang.code === currentLang}
+                  className={`
+                    w-full px-4 py-2 text-left text-sm
+                    ${lang.code === currentLang ? 'bg-gray-100' : 'hover:bg-gray-50'}
+                    ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                    flex items-center space-x-2
+                  `}
+                >
+                  <span className="text-xl">{lang.flag}</span>
+                  <span>{lang.name}</span>
+                  {isLoading && lang.code === currentLang && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="ml-2"
+                    >
+                      ⟳
+                    </motion.div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {error && (
+        <div className="absolute top-full mt-2 text-red-500 text-sm">
+          {error}
+        </div>
+      )}
+    </div>
   )
 }

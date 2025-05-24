@@ -4,14 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diagnóstico de Maturidade Digital | StrateUp</title>
-  <meta name="description" content="Faça nosso diagnóstico gratuito e descubra o nível de maturidade digital da sua empresa.">
-  
+  <meta name="description" content="Faça nosso diagnóstico gratuito e descubra o nível de maturidade digital da sua empresa. Receba um relatório personalizado com insights estratégicos.">
+
   <!-- Language alternates for SEO -->
   <link rel="alternate" hreflang="pt" href="/diagnostico?lang=pt">
   <link rel="alternate" hreflang="en" href="/diagnostico?lang=en">
   <link rel="alternate" hreflang="es" href="/diagnostico?lang=es">
   <link rel="alternate" hreflang="x-default" href="/diagnostico">
-  
+
+  <!-- Favicon -->
+  <link rel="icon" href="/api/placeholder/32/32" type="image/png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -21,6 +32,7 @@
           colors: {
             primary: '#0066FF',
             secondary: '#FF6B00',
+            tertiary: '#00C2A8',
             dark: '#1A202C',
             light: '#F7FAFC'
           },
@@ -32,10 +44,10 @@
       }
     }
   </script>
-  
+
   <!-- Alpine.js for reactivity -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  
+
   <!-- Custom styles -->
   <style>
     /* Base styles */
@@ -43,50 +55,112 @@
       font-family: 'Poppins', sans-serif;
       color: #1A202C;
     }
-    
+
     h1, h2, h3, h4, h5, h6 {
       font-family: 'Bricolage Grotesque', sans-serif;
     }
-    
+
     /* Animation classes */
     .animate-fadeIn {
       animation: fadeIn 0.8s ease-in-out forwards;
     }
-    
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
-    /* Form styles - Fixed the spacing issue between classes */
-    .form-input {
-      @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#06f] focus:border-transparent;
+
+    .slide-in {
+      animation: slideIn 0.5s ease-out forwards;
     }
-    
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .slide-out {
+      animation: slideOut 0.5s ease-out forwards;
+    }
+
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-30px); }
+    }
+
+    /* Form styles */
+    .form-input {
+      @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+    }
+
     .form-label {
       @apply block text-sm font-medium text-gray-700 mb-1;
     }
-    
+
     /* Custom components */
     .btn {
       @apply px-6 py-3 rounded-md font-medium transition-all duration-300;
     }
-    
+
     .btn-primary {
       @apply bg-primary text-white hover:bg-blue-700;
     }
-    
+
+    .btn-secondary {
+      @apply bg-secondary text-white hover:bg-orange-700;
+    }
+
+    .btn-outline {
+      @apply border border-gray-300 text-gray-700 hover:bg-gray-50;
+    }
+
     .section {
       @apply py-16 md:py-24;
     }
-    
+
     .container {
       @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
     }
-    
+
     /* Language selector styles */
     .lang-option.active {
       @apply bg-gray-100 font-medium;
+    }
+
+    /* Card styles */
+    .feature-card {
+      @apply bg-white p-6 rounded-lg shadow-md border-t-4 border-primary transition-all duration-300 hover:shadow-lg;
+    }
+
+    /* Step indicator styles */
+    .step-indicator {
+      @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium;
+    }
+
+    .step-indicator.active {
+      @apply bg-primary text-white;
+    }
+
+    .step-indicator.completed {
+      @apply bg-green-500 text-white;
+    }
+
+    .step-indicator.inactive {
+      @apply bg-gray-200 text-gray-600;
+    }
+
+    /* Form validation */
+    .form-input.error {
+      @apply border-red-500 ring-red-500;
+    }
+
+    .error-message {
+      @apply text-red-500 text-sm mt-1;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      @apply inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
     }
   </style>
 </head>
@@ -97,17 +171,17 @@
       <a href="/" class="flex items-center">
         <span class="text-2xl font-bold text-primary">StrateUp</span>
       </a>
-      
+
       <!-- Desktop Navigation -->
       <nav class="hidden md:flex space-x-8">
         <a href="/" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.home">Home</a>
         <a href="/servicos" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.services">Serviços</a>
-        <a href="/diagnostico" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.diagnostic">Diagnóstico</a>
+        <a href="/diagnostico" class="font-medium text-primary border-b-2 border-primary" data-i18n="common.diagnostic">Diagnóstico</a>
         <a href="/blog" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.blog">Blog</a>
         <a href="/sobre" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.about">Sobre</a>
         <a href="/contato" class="font-medium text-gray-800 hover:text-primary" data-i18n="common.contact">Contato</a>
       </nav>
-      
+
       <!-- Language Selector -->
       <div class="hidden md:flex items-center space-x-4">
         <div class="relative" x-data="{ open: false }">
@@ -118,18 +192,19 @@
             </svg>
           </button>
           <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-24 bg-white rounded-md shadow-lg py-1 z-50">
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 lang-option" data-lang="pt">PT</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 lang-option active" data-lang="pt">PT</a>
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 lang-option" data-lang="en">EN</a>
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 lang-option" data-lang="es">ES</a>
           </div>
         </div>
         <a href="/contato" class="bg-secondary hover:bg-opacity-90 text-white px-4 py-2 rounded-md font-medium transition-colors" data-i18n="common.contact">Contato</a>
       </div>
-      
+
       <!-- Mobile menu button -->
-      <button 
-        class="md:hidden text-gray-800 focus:outline-none" 
-        onclick="toggleMobileMenu()"
+      <button
+        class="md:hidden text-gray-800 focus:outline-none"
+        x-data="{ open: false }"
+        @click="open = !open; toggleMobileMenu()"
         aria-label="Toggle menu"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -137,22 +212,22 @@
         </svg>
       </button>
     </div>
-    
+
     <!-- Mobile Navigation -->
     <div id="mobile-menu" class="md:hidden hidden bg-white shadow-md">
       <div class="px-4 py-2 space-y-2">
         <a href="/" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.home">Home</a>
         <a href="/servicos" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.services">Serviços</a>
-        <a href="/diagnostico" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.diagnostic">Diagnóstico</a>
+        <a href="/diagnostico" class="block py-2 font-medium text-primary" data-i18n="common.diagnostic">Diagnóstico</a>
         <a href="/blog" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.blog">Blog</a>
         <a href="/sobre" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.about">Sobre</a>
         <a href="/contato" class="block py-2 font-medium text-gray-800 hover:text-primary" data-i18n="common.contact">Contato</a>
-        
+
         <!-- Mobile Language Selector -->
         <div class="pt-2 border-t border-gray-200 mt-2">
           <p class="text-sm text-gray-600 mb-2" data-i18n="common.language">Idioma</p>
           <div class="flex space-x-2">
-            <a href="#" class="px-2 py-1 text-sm border rounded lang-option" data-lang="pt">PT</a>
+            <a href="#" class="px-2 py-1 text-sm border rounded lang-option active" data-lang="pt">PT</a>
             <a href="#" class="px-2 py-1 text-sm border rounded lang-option" data-lang="en">EN</a>
             <a href="#" class="px-2 py-1 text-sm border rounded lang-option" data-lang="es">ES</a>
           </div>
@@ -162,32 +237,143 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="bg-gradient-to-r from-blue-50 to-blue-100 py-16">
+  <section class="bg-gradient-to-r from-blue-50 to-blue-100 py-16 md:py-24">
     <div class="container mx-auto px-4">
-      <div class="max-w-3xl mx-auto text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-6 animate-on-scroll" data-i18n="diagnostic.hero.title">
-          Diagnóstico de Maturidade Digital
-        </h1>
-        <p class="text-xl mb-8 text-gray-700 animate-on-scroll" data-i18n="diagnostic.hero.subtitle">
-          Descubra o nível de maturidade digital da sua empresa e receba recomendações personalizadas para crescer.
-        </p>
+      <div class="md:flex items-center">
+        <div class="md:w-1/2 mb-8 md:mb-0">
+          <div class="max-w-lg animate-fadeIn">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6" data-i18n="diagnostic.hero.title">
+              Diagnóstico de Maturidade Digital
+            </h1>
+            <p class="text-xl mb-8 text-gray-700" data-i18n="diagnostic.hero.subtitle">
+              Descubra o nível de maturidade digital da sua empresa e receba recomendações personalizadas para acelerar seu crescimento.
+            </p>
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="flex text-yellow-400">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="text-gray-700">Mais de 500 empresas avaliadas</span>
+            </div>
+            <a href="#diagnostic-form" class="btn btn-primary inline-flex items-center">
+              Iniciar Diagnóstico
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="md:w-1/2">
+          <div class="relative">
+            <img src="/api/placeholder/600/400" alt="Diagnóstico Digital" class="rounded-lg shadow-lg w-full">
+            <div class="absolute -bottom-4 -right-4 bg-white p-4 rounded-lg shadow-md">
+              <div class="text-3xl font-bold text-primary">100% Gratuito</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="section bg-white">
+    <div class="container">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Por que fazer nosso diagnóstico?</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Nossa metodologia exclusiva avalia os principais pilares da transformação digital para oferecer insights valiosos para o seu negócio.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="feature-card">
+          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-chart-line text-primary text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Análise Personalizada</h3>
+          <p class="text-gray-600">Receba uma avaliação detalhada baseada no perfil único da sua empresa e setor de atuação.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-lightbulb text-primary text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Insights Estratégicos</h3>
+          <p class="text-gray-600">Identifique oportunidades de crescimento e áreas de melhoria com recomendações práticas.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-rocket text-primary text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Plano de Ação</h3>
+          <p class="text-gray-600">Receba um roteiro claro com os próximos passos para acelerar sua transformação digital.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Methodology Section -->
+  <section class="section bg-gray-50">
+    <div class="container">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Nossa Metodologia</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">O diagnóstico StrateUp avalia 4 pilares fundamentais da maturidade digital.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 font-bold">1</div>
+          <h3 class="text-xl font-semibold mb-2">Presença Digital</h3>
+          <p class="text-gray-600">Avaliamos a qualidade e eficácia dos seus canais digitais e pontos de contato com o cliente.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 font-bold">2</div>
+          <h3 class="text-xl font-semibold mb-2">Marketing Digital</h3>
+          <p class="text-gray-600">Analisamos suas estratégias, canais e eficiência das suas campanhas de marketing.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 font-bold">3</div>
+          <h3 class="text-xl font-semibold mb-2">Dados & Analytics</h3>
+          <p class="text-gray-600">Verificamos como sua empresa coleta, analisa e utiliza dados para tomar decisões.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-4 font-bold">4</div>
+          <h3 class="text-xl font-semibold mb-2">Cultura & Inovação</h3>
+          <p class="text-gray-600">Avaliamos a preparação da sua empresa para adotar novas tecnologias e processos.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Diagnostic Form Section -->
-  <section class="section bg-white">
+  <section id="diagnostic-form" class="section bg-white">
     <div class="container">
       <div class="max-w-3xl mx-auto">
-        <div class="bg-white p-8 rounded-lg shadow-md animate-on-scroll">
+        <div class="bg-white p-8 rounded-lg shadow-md">
           <h2 class="text-2xl font-bold mb-6" data-i18n="diagnostic.form.title">Preencha o formulário abaixo</h2>
-          
-          <form id="diagnostic-form" x-data="{ step: 1, totalSteps: 4 }">
+          <p class="text-gray-600 mb-8">O diagnóstico leva apenas 5 minutos para ser preenchido e você receberá o relatório personalizado em seu email.</p>
+
+          <form id="diagnostic-form" x-data="{
+            step: 1,
+            totalSteps: 4,
+            loading: false,
+            submissionComplete: false,
+            formData: {},
+            validateStep() {
+              // Basic validation logic would go here
+              return true;
+            }
+          }">
             <!-- Progress Bar -->
-            <div class="mb-8">
+            <div class="mb-8" x-show="!submissionComplete">
               <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  class="bg-primary h-2.5 rounded-full transition-all duration-300" 
+                <div
+                  class="bg-primary h-2.5 rounded-full transition-all duration-300"
                   x-bind:style="'width: ' + (step / totalSteps * 100) + '%'"
                 ></div>
               </div>
@@ -196,17 +382,55 @@
                 <span x-text="Math.round(step / totalSteps * 100) + '%'"></span>
               </div>
             </div>
-            
+
+            <!-- Step Indicators -->
+            <div class="flex justify-center mb-8" x-show="!submissionComplete">
+              <div class="flex items-center">
+                <div
+                  class="step-indicator"
+                  :class="step > 1 ? 'completed' : step == 1 ? 'active' : 'inactive'"
+                >1</div>
+                <div class="w-8 h-1 bg-gray-300" :class="step > 1 ? 'bg-primary' : ''"></div>
+                <div
+                  class="step-indicator"
+                  :class="step > 2 ? 'completed' : step == 2 ? 'active' : 'inactive'"
+                >2</div>
+                <div class="w-8 h-1 bg-gray-300" :class="step > 2 ? 'bg-primary' : ''"></div>
+                <div
+                  class="step-indicator"
+                  :class="step > 3 ? 'completed' : step == 3 ? 'active' : 'inactive'"
+                >3</div>
+                <div class="w-8 h-1 bg-gray-300" :class="step > 3 ? 'bg-primary' : ''"></div>
+                <div
+                  class="step-indicator"
+                  :class="step == 4 ? 'active' : 'inactive'"
+                >4</div>
+              </div>
+            </div>
+
+            <!-- Success Message -->
+            <div x-show="submissionComplete" class="text-center py-10 animate-fadeIn">
+              <div class="w-20 h-20 rounded-full bg-green-100 text-green-500 flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check-circle text-4xl"></i>
+              </div>
+              <h3 class="text-2xl font-bold mb-4">Diagnóstico Enviado com Sucesso!</h3>
+              <p class="text-gray-600 mb-8">Obrigado por completar nosso diagnóstico de maturidade digital. Em breve você receberá o relatório personalizado no seu e-mail.</p>
+              <div class="flex justify-center">
+                <a href="/" class="btn btn-primary">Voltar para Home</a>
+              </div>
+            </div>
+
             <!-- Step 1: Company Information -->
-            <div x-show="step === 1">
+            <div x-show="step === 1 && !submissionComplete" class="slide-in">
               <h3 class="text-xl font-semibold mb-4" data-i18n="diagnostic.form.steps.company">Informações da Empresa</h3>
-              
+
               <div class="space-y-4">
                 <div>
                   <label for="company_name" class="form-label" data-i18n="diagnostic.form.fields.companyName">Nome da Empresa</label>
                   <input type="text" id="company_name" name="company_name" class="form-input" required>
+                  <div class="error-message hidden">Este campo é obrigatório</div>
                 </div>
-                
+
                 <div>
                   <label for="industry" class="form-label" data-i18n="diagnostic.form.fields.industry">Setor de Atuação</label>
                   <select id="industry" name="industry" class="form-input" required>
@@ -220,8 +444,9 @@
                     <option value="services">Serviços</option>
                     <option value="other">Outro</option>
                   </select>
+                  <div class="error-message hidden">Por favor, selecione um setor</div>
                 </div>
-                
+
                 <div>
                   <label for="company_size" class="form-label">Tamanho da Empresa</label>
                   <select id="company_size" name="company_size" class="form-input" required>
@@ -232,24 +457,33 @@
                     <option value="201-500">201-500 funcionários</option>
                     <option value="501+">Mais de 500 funcionários</option>
                   </select>
+                  <div class="error-message hidden">Por favor, selecione o tamanho da empresa</div>
                 </div>
-                
+
                 <div>
                   <label for="respondent_name" class="form-label">Seu Nome</label>
                   <input type="text" id="respondent_name" name="respondent_name" class="form-input" required>
+                  <div class="error-message hidden">Este campo é obrigatório</div>
                 </div>
-                
+
                 <div>
                   <label for="respondent_email" class="form-label">Seu Email</label>
                   <input type="email" id="respondent_email" name="respondent_email" class="form-input" required>
+                  <div class="error-message hidden">Por favor, informe um email válido</div>
+                </div>
+
+                <div>
+                  <label for="respondent_position" class="form-label">Seu Cargo</label>
+                  <input type="text" id="respondent_position" name="respondent_position" class="form-input" required>
+                  <div class="error-message hidden">Este campo é obrigatório</div>
                 </div>
               </div>
             </div>
-            
+
             <!-- Step 2: Digital Presence -->
-            <div x-show="step === 2" x-cloak>
+            <div x-show="step === 2 && !submissionComplete" class="slide-in">
               <h3 class="text-xl font-semibold mb-4">Presença Digital</h3>
-              
+
               <div class="space-y-4">
                 <div>
                   <p class="form-label">Sua empresa possui um website?</p>
@@ -263,244 +497,561 @@
                       <span class="ml-2">Não</span>
                     </label>
                   </div>
+                  <div class="error-message hidden">Por favor, selecione uma opção</div>
                 </div>
-                
+
                 <div>
                   <p class="form-label">Quais redes sociais sua empresa utiliza ativamente?</p>
-                  <div class="space-y-2">
+                  <div class="grid md:grid-cols-2 gap-2">
                     <label class="inline-flex items-center">
                       <input type="checkbox" name="social_media" value="facebook" class="form-checkbox">
                       <span class="ml-2">Facebook</span>
                     </label>
-                    <br>
                     <label class="inline-flex items-center">
                       <input type="checkbox" name="social_media" value="instagram" class="form-checkbox">
-                      <span class="ml-2">Instagram</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="social_media" value="linkedin" class="form-checkbox">
-                      <span class="ml-2">LinkedIn</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="social_media" value="twitter" class="form-checkbox">
-                      <span class="ml-2">Twitter</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="social_media" value="youtube" class="form-checkbox">
-                      <span class="ml-2">YouTube</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="social_media" value="tiktok" class="form-checkbox">
-                      <span class="ml-2">TikTok</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="social_media" value="none" class="form-checkbox">
-                      <span class="ml-2">Nenhuma</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <p class="form-label">Com que frequência sua empresa produz conteúdo digital?</p>
-                  <select id="content_frequency" name="content_frequency" class="form-input" required>
-                    <option value="">Selecione...</option>
-                    <option value="daily">Diariamente</option>
-                    <option value="weekly">Semanalmente</option>
-                    <option value="monthly">Mensalmente</option>
-                    <option value="quarterly">Trimestralmente</option>
-                    <option value="rarely">Raramente</option>
-                    <option value="never">Nunca</option>
-                  </select>
-                </div>
+<span class="ml-2">Instagram</span>
+</label>
+<label class="inline-flex items-center">
+<input type="checkbox" name="social_media" value="linkedin" class="form-checkbox">
+<span class="ml-2">LinkedIn</span>
+</label>
+<label class="inline-flex items-center">
+<input type="checkbox" name="social_media" value="twitter" class="form-checkbox">
+<span class="ml-2">Twitter/X</span>
+</label>
+<label class="inline-flex items-center">
+<input type="checkbox" name="social_media" value="youtube" class="form-checkbox">
+<span class="ml-2">YouTube</span>
+</label>
+<label class="inline-flex items-center">
+<input type="checkbox" name="social_media" value="tiktok" class="form-checkbox">
+<span class="ml-2">TikTok</span>
+</label>
+</div>
+</div>
+            <div>
+              <p class="form-label">Com que frequência sua empresa atualiza o conteúdo digital?</p>
+              <select name="content_frequency" class="form-input" required>
+                <option value="">Selecione...</option>
+                <option value="daily">Diariamente</option>
+                <option value="weekly">Semanalmente</option>
+                <option value="monthly">Mensalmente</option>
+                <option value="quarterly">Trimestralmente</option>
+                <option value="rarely">Raramente</option>
+                <option value="never">Nunca</option>
+              </select>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+
+            <div>
+              <p class="form-label">Sua empresa utiliza alguma ferramenta de análise de dados (Google Analytics, etc.)?</p>
+              <div class="flex space-x-4">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="uses_analytics" value="yes" class="form-radio" required>
+                  <span class="ml-2">Sim</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="uses_analytics" value="no" class="form-radio">
+                  <span class="ml-2">Não</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="uses_analytics" value="unsure" class="form-radio">
+                  <span class="ml-2">Não sei</span>
+                </label>
+              </div>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Digital Marketing -->
+        <div x-show="step === 3 && !submissionComplete" class="slide-in">
+          <h3 class="text-xl font-semibold mb-4">Marketing Digital</h3>
+
+          <div class="space-y-4">
+            <div>
+              <p class="form-label">Sua empresa investe em marketing digital?</p>
+              <div class="flex space-x-4">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="invests_marketing" value="yes" class="form-radio" required>
+                  <span class="ml-2">Sim</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="invests_marketing" value="no" class="form-radio">
+                  <span class="ml-2">Não</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="invests_marketing" value="planning" class="form-radio">
+                  <span class="ml-2">Planejando iniciar</span>
+                </label>
+              </div>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+
+            <div>
+              <p class="form-label">Quais canais de marketing digital sua empresa utiliza?</p>
+              <div class="grid md:grid-cols-2 gap-2">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="social_ads" class="form-checkbox">
+                  <span class="ml-2">Anúncios em redes sociais</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="search_ads" class="form-checkbox">
+                  <span class="ml-2">Google Ads/Search</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="email" class="form-checkbox">
+                  <span class="ml-2">Email Marketing</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="content" class="form-checkbox">
+                  <span class="ml-2">Marketing de Conteúdo</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="influencer" class="form-checkbox">
+                  <span class="ml-2">Marketing de Influência</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="marketing_channels" value="seo" class="form-checkbox">
+                  <span class="ml-2">SEO (Otimização para buscas)</span>
+                </label>
               </div>
             </div>
-            
-            <!-- Step 3: Marketing & Analytics -->
-            <div x-show="step === 3" x-cloak>
-              <h3 class="text-xl font-semibold mb-4">Marketing & Analytics</h3>
-              
-              <div class="space-y-4">
-                <div>
-                  <p class="form-label">Sua empresa utiliza ferramentas de analytics?</p>
-                  <div class="flex space-x-4">
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="uses_analytics" value="yes" class="form-radio" required>
-                      <span class="ml-2">Sim</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="uses_analytics" value="no" class="form-radio">
-                      <span class="ml-2">Não</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <p class="form-label">Sua empresa investe em marketing digital?</p>
-                  <div class="flex space-x-4">
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="digital_marketing" value="yes" class="form-radio" required>
-                      <span class="ml-2">Sim</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                      <input type="radio" name="digital_marketing" value="no" class="form-radio">
-                      <span class="ml-2">Não</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <p class="form-label">Quais canais de marketing digital sua empresa utiliza?</p>
-                  <div class="space-y-2">
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="seo" class="form-checkbox">
-                      <span class="ml-2">SEO</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="sem" class="form-checkbox">
-                      <span class="ml-2">Google Ads / SEM</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="social_ads" class="form-checkbox">
-                      <span class="ml-2">Anúncios em Redes Sociais</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="email" class="form-checkbox">
-                      <span class="ml-2">Email Marketing</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="content" class="form-checkbox">
-                      <span class="ml-2">Marketing de Conteúdo</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="influencer" class="form-checkbox">
-                      <span class="ml-2">Marketing de Influência</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="marketing_channels" value="none" class="form-checkbox">
-                      <span class="ml-2">Nenhum</span>
-                    </label>
-                  </div>
-                </div>
+
+            <div>
+              <p class="form-label">Sua empresa possui um orçamento dedicado para marketing digital?</p>
+              <div class="flex space-x-4">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="marketing_budget" value="yes" class="form-radio" required>
+                  <span class="ml-2">Sim</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="marketing_budget" value="no" class="form-radio">
+                  <span class="ml-2">Não</span>
+                </label>
+              </div>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+
+            <div>
+              <p class="form-label">Como você avalia o retorno sobre o investimento em marketing digital da sua empresa?</p>
+              <select name="marketing_roi" class="form-input" required>
+                <option value="">Selecione...</option>
+                <option value="excellent">Excelente</option>
+                <option value="good">Bom</option>
+                <option value="average">Médio</option>
+                <option value="poor">Baixo</option>
+                <option value="unknown">Não mensuramos</option>
+              </select>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Data & Analytics -->
+        <div x-show="step === 4 && !submissionComplete" class="slide-in">
+          <h3 class="text-xl font-semibold mb-4">Dados & Inovação</h3>
+
+          <div class="space-y-4">
+            <div>
+              <p class="form-label">Sua empresa utiliza dados para tomar decisões estratégicas?</p>
+              <div class="flex space-x-4">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="data_decisions" value="always" class="form-radio" required>
+                  <span class="ml-2">Sempre</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="data_decisions" value="sometimes" class="form-radio">
+                  <span class="ml-2">Às vezes</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="data_decisions" value="rarely" class="form-radio">
+                  <span class="ml-2">Raramente</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="radio" name="data_decisions" value="never" class="form-radio">
+                  <span class="ml-2">Nunca</span>
+                </label>
+              </div>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
+            </div>
+
+            <div>
+              <p class="form-label">Quais tecnologias ou ferramentas digitais sua empresa utiliza?</p>
+              <div class="grid md:grid-cols-2 gap-2">
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="crm" class="form-checkbox">
+                  <span class="ml-2">CRM</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="erp" class="form-checkbox">
+                  <span class="ml-2">ERP</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="marketing_automation" class="form-checkbox">
+                  <span class="ml-2">Automação de Marketing</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="bi" class="form-checkbox">
+                  <span class="ml-2">Business Intelligence</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="ecommerce" class="form-checkbox">
+                  <span class="ml-2">Plataforma de E-commerce</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" name="tech_tools" value="cloud" class="form-checkbox">
+                  <span class="ml-2">Soluções em Nuvem</span>
+                </label>
               </div>
             </div>
-            
-            <!-- Step 4: Business Goals -->
-            <div x-show="step === 4" x-cloak>
-              <h3 class="text-xl font-semibold mb-4">Objetivos de Negócio</h3>
-              
-              <div class="space-y-4">
-                <div>
-                  <p class="form-label">Quais são os principais objetivos da sua empresa para os próximos 12 meses?</p>
-                  <div class="space-y-2">
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="increase_revenue" class="form-checkbox">
-                      <span class="ml-2">Aumentar receita</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="expand_market" class="form-checkbox">
-                      <span class="ml-2">Expandir para novos mercados</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="improve_brand" class="form-checkbox">
-                      <span class="ml-2">Melhorar reconhecimento da marca</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="launch_product" class="form-checkbox">
-                      <span class="ml-2">Lançar novos produtos/serviços</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="improve_customer" class="form-checkbox">
-                      <span class="ml-2">Melhorar satisfação do cliente</span>
-                    </label>
-                    <br>
-                    <label class="inline-flex items-center">
-                      <input type="checkbox" name="business_goals" value="reduce_costs" class="form-checkbox">
-                      <span class="ml-2">Reduzir custos</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <label for="digital_challenges" class="form-label">Quais são os principais desafios digitais da sua empresa?</label>
-                  <textarea id="digital_challenges" name="digital_challenges" rows="4" class="form-input" required></textarea>
-                </div>
-                
-                <div>
-                  <label for="expectations" class="form-label">O que você espera obter com este diagnóstico?</label>
-                  <textarea id="expectations" name="expectations" rows="4" class="form-input" required></textarea>
-                </div>
-              </div>
+
+            <div>
+              <p class="form-label">Como você avalia a prontidão da sua empresa para adoção de novas tecnologias?</p>
+              <select name="tech_readiness" class="form-input" required>
+                <option value="">Selecione...</option>
+                <option value="very_high">Muito alta - Somos early adopters</option>
+                <option value="high">Alta - Adotamos novas tecnologias rapidamente</option>
+                <option value="medium">Média - Adotamos após comprovação de mercado</option>
+                <option value="low">Baixa - Somos conservadores em adotar novidades</option>
+                <option value="very_low">Muito baixa - Resistimos a mudanças tecnológicas</option>
+              </select>
+              <div class="error-message hidden">Por favor, selecione uma opção</div>
             </div>
-            
-            <!-- Navigation Buttons -->
-            <div class="flex justify-between mt-8">
-              <button 
-                type="button" 
-                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                x-show="step > 1"
-                @click="step--"
-                data-i18n="diagnostic.form.buttons.back"
-              >
-                Voltar
-              </button>
-              
-              <div x-show="step === 1"></div>
-              
-              <button 
-                type="button" 
-                class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
-                x-show="step < totalSteps"
-                @click="step++"
-                data-i18n="diagnostic.form.buttons.next"
-              >
-                Próximo
-              </button>
-              
-              <button 
-                type="submit" 
-                class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
-                x-show="step === totalSteps"
-                data-i18n="diagnostic.form.buttons.submit"
-              >
-                Enviar Diagnóstico
-              </button>
+
+            <div>
+              <p class="form-label">Qual é o maior desafio da sua empresa em relação à transformação digital?</p>
+              <textarea name="digital_challenge" rows="3" class="form-input" required></textarea>
+              <div class="error-message hidden">Por favor, compartilhe seus desafios</div>
             </div>
-          </form>
+          </div>
+        </div>
+
+        <!-- Form Navigation Buttons -->
+        <div x-show="!submissionComplete" class="mt-8 flex justify-between">
+          <button
+            type="button"
+            class="btn btn-outline"
+            x-show="step > 1"
+            @click="step--"
+          >
+            <i class="fas fa-arrow-left mr-2"></i> Voltar
+          </button>
+          <div></div>
+          <button
+            type="button"
+            x-show="step < totalSteps"
+            class="btn btn-primary"
+            @click="if(validateStep()) step++"
+          >
+            Próximo <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+          <button
+            type="submit"
+            x-show="step === totalSteps"
+            class="btn btn-secondary"
+            @click="loading = true; setTimeout(() => { loading = false; submissionComplete = true; }, 1500); return false;"
+            :disabled="loading"
+          >
+            <span x-show="!loading">Enviar Diagnóstico</span>
+            <span x-show="loading" class="flex items-center">
+              <span class="spinner mr-2"></span> Processando...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  </section>
+  <!-- Testimonials Section -->
+  <section class="section bg-gray-50">
+    <div class="container">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">O que nossos clientes dizem</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Empresas que realizaram nosso diagnóstico e implementaram as recomendações.</p>
+      </div>
+  <div class="grid md:grid-cols-3 gap-8">
+    <!-- Testimonial 1 -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex text-yellow-400 mb-4">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <blockquote class="text-gray-700 mb-6">
+        "O diagnóstico da StrateUp identificou exatamente os pontos fracos da nossa presença digital. Implementamos as recomendações e vimos um aumento de 43% nas conversões em apenas 3 meses."
+      </blockquote>
+      <div class="flex items-center">
+        <div class="w-12 h-12 rounded-full bg-gray-300 flex-shrink-0"></div>
+        <div class="ml-3">
+          <p class="font-medium">Ana Silva</p>
+          <p class="text-sm text-gray-500">Diretora de Marketing, TechSolutions</p>
         </div>
       </div>
     </div>
-  </section>
 
+    <!-- Testimonial 2 -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex text-yellow-400 mb-4">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <blockquote class="text-gray-700 mb-6">
+        "Como empresa tradicional, tínhamos dificuldade em entender por onde começar nossa transformação digital. O diagnóstico nos deu um roteiro claro e agora estamos muito mais confiantes."
+      </blockquote>
+      <div class="flex items-center">
+        <div class="w-12 h-12 rounded-full bg-gray-300 flex-shrink-0"></div>
+        <div class="ml-3">
+          <p class="font-medium">Roberto Mendes</p>
+          <p class="text-sm text-gray-500">CEO, Indústria Brasileira</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonial 3 -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex text-yellow-400 mb-4">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star-half-alt"></i>
+      </div>
+      <blockquote class="text-gray-700 mb-6">
+        "Surpreendentemente detalhado para um diagnóstico gratuito. Encontramos insights valiosos e o relatório foi extremamente específico para nosso segmento de mercado."
+      </blockquote>
+      <div class="flex items-center">
+        <div class="w-12 h-12 rounded-full bg-gray-300 flex-shrink-0"></div>
+        <div class="ml-3">
+          <p class="font-medium">Carla Rodrigues</p>
+          <p class="text-sm text-gray-500">COO, E-Shop Express</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+  <!-- FAQ Section -->
+  <section class="section bg-white">
+    <div class="container">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">Perguntas Frequentes</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Tudo o que você precisa saber sobre nosso diagnóstico de maturidade digital.</p>
+      </div>
+  <div class="max-w-3xl mx-auto" x-data="{ openItem: null }">
+    <!-- FAQ Item 1 -->
+    <div class="mb-4 border border-gray-200 rounded-lg">
+      <button
+        class="flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none"
+        @click="openItem = openItem === 1 ? null : 1"
+      >
+        <span class="font-medium">Quanto tempo leva para receber o relatório de diagnóstico?</span>
+        <svg
+          class="w-5 h-5 transform transition-transform duration-200"
+          :class="openItem === 1 ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div x-show="openItem === 1" class="px-6 pb-4">
+        <p class="text-gray-600">
+          Você receberá o relatório de diagnóstico em até 24 horas úteis após o preenchimento completo do formulário. O relatório será enviado para o email cadastrado no formulário.
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ Item 2 -->
+    <div class="mb-4 border border-gray-200 rounded-lg">
+      <button
+        class="flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none"
+        @click="openItem = openItem === 2 ? null : 2"
+      >
+        <span class="font-medium">O diagnóstico é realmente gratuito?</span>
+        <svg
+          class="w-5 h-5 transform transition-transform duration-200"
+          :class="openItem === 2 ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div x-show="openItem === 2" class="px-6 pb-4">
+        <p class="text-gray-600">
+          Sim, o diagnóstico básico é 100% gratuito e sem compromisso. Oferecemos também uma versão Premium do diagnóstico com análise mais aprofundada e consultoria personalizada, caso tenha interesse.
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ Item 3 -->
+    <div class="mb-4 border border-gray-200 rounded-lg">
+      <button
+        class="flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none"
+        @click="openItem = openItem === 3 ? null : 3"
+      >
+        <span class="font-medium">Como minha empresa pode implementar as recomendações?</span>
+        <svg
+          class="w-5 h-5 transform transition-transform duration-200"
+          :class="openItem === 3 ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div x-show="openItem === 3" class="px-6 pb-4">
+        <p class="text-gray-600">
+          O relatório inclui recomendações práticas que podem ser implementadas internamente pela sua equipe. Se preferir, podemos oferecer consultoria e serviços para ajudar na implementação das estratégias sugeridas.
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ Item 4 -->
+    <div class="mb-4 border border-gray-200 rounded-lg">
+      <button
+        class="flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none"
+        @click="openItem = openItem === 4 ? null : 4"
+      >
+        <span class="font-medium">Quais informações estão incluídas no relatório?</span>
+        <svg
+          class="w-5 h-5 transform transition-transform duration-200"
+          :class="openItem === 4 ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div x-show="openItem === 4" class="px-6 pb-4">
+        <p class="text-gray-600">
+          O relatório inclui uma análise detalhada da maturidade digital da sua empresa nos 4 pilares (Presença Digital, Marketing Digital, Dados & Analytics, e Cultura & Inovação), uma pontuação comparativa com empresas do seu setor, e recomendações prioritárias para melhorar seu desempenho digital.
+        </p>
+      </div>
+    </div>
+
+    <!-- FAQ Item 5 -->
+    <div class="mb-4 border border-gray-200 rounded-lg">
+      <button
+        class="flex justify-between items-center w-full px-6 py-4 text-left focus:outline-none"
+        @click="openItem = openItem === 5 ? null : 5"
+      >
+        <span class="font-medium">Os dados da minha empresa são confidenciais?</span>
+        <svg
+          class="w-5 h-5 transform transition-transform duration-200"
+          :class="openItem === 5 ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+      <div x-show="openItem === 5" class="px-6 pb-4">
+        <p class="text-gray-600">
+          Sim, todos os dados fornecidos no diagnóstico são confidenciais e utilizados apenas para a elaboração do seu relatório personalizado. Não compartilhamos suas informações com terceiros sem sua autorização expressa.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+  <!-- CTA Section -->
+  <section class="bg-primary text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-6">Pronto para transformar seu negócio?</h2>
+      <p class="text-xl mb-8 max-w-2xl mx-auto">
+        Não perca mais oportunidades digitais. Faça nosso diagnóstico gratuito e dê o primeiro passo rumo à transformação digital da sua empresa.
+      </p>
+      <a href="#diagnostic-form" class="btn bg-white text-primary hover:bg-gray-100 font-medium py-3 px-8 rounded-md inline-flex items-center">
+        Iniciar Diagnóstico Gratuito
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </a>
+    </div>
+  </section>
   <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-12">
+  <footer class="bg-dark text-white pt-16 pb-8">
     <div class="container mx-auto px-4">
-      <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+        <!-- Company Info -->
         <div>
           <h3 class="text-xl font-bold mb-4">StrateUp</h3>
-          <p class="text-gray-400 mb-4">Transformando negócios através de estratégias digitais eficientes.</p>
+          <p class="text-gray-300 mb-4">
+            Consultoria especializada em transformação digital e estratégias de crescimento para empresas de todos os tamanhos.
+          </p>
           <div class="flex space-x-4">
-            <a href="#" class="text-gray-400 hover:text-white">
-              <span class="sr-only">Facebook</span>
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
-              </svg>
+            <a href="#" class="text-gray-300 hover:text-white">
+              <i class="fab fa-facebook-f"></i>
             </a>
-            <a href="#" class="text-gray-400 hover:text-white">
-              <span class="sr-only">Instagram</span>
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.
+            <a href="#" class="text-gray-300 hover:text-white">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </div>
+        </div>
+    <!-- Quick Links -->
+    <div>
+      <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+      <ul class="space-y-2">
+        <li><a href="/" class="text-gray-300 hover:text-white">Home</a></li>
+        <li><a href="/servicos" class="text-gray-300 hover:text-white">Serviços</a></li>
+        <li><a href="/diagnostico" class="text-gray-300 hover:text-white">Diagnóstico</a></li>
+        <li><a href="/blog" class="text-gray-300 hover:text-white">Blog</a></li>
+        <li><a href="/sobre" class="text-gray-300 hover:text-white">Sobre</a></li>
+        <li><a href="/contato" class="text-gray-300 hover:text-white">Contato</a></li>
+      </ul>
+    </div>
+
+    <!-- Services -->
+    <div>
+      <h4 class="text-lg font-semibold mb-4">Serviços</h4>
+      <ul class="space-y-2">
+        <li><a href="/servicos/estrategia-digital" class="text-gray-300 hover:text-white">Estratégia Digital</a></li>
+        <li><a href="/servicos/marketing-digital" class="text-gray-300 hover:text-white">Marketing Digital</a></li>
+        <li><a href="/servicos/desenvolvimento-web" class="text-gray-300 hover:text-white">Desenvolvimento Web</a></li>
+        <li><a href="/servicos/automacao" class="text-gray-300 hover:text-white">Automação de Processos</a></li>
+        <li><a href="/servicos/analytics" class="text-gray-300 hover:text-white">Dados & Analytics</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <h4 class="text-lg font-semibold mb-4">Contato</h4>
+      <ul class="space-y-2">
+        <li class="flex items-center">
+          <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+          <span class="ml-2 text-gray-300">Av. Paulista, 1000 - São Paulo</span>
+        </li>
+        <li class="flex items-center">
+          <i class="fas fa-phone w-5 text-gray-400"></i>
+          <span class="ml-2 text-gray-300">+55 11 9999-8888</span>
+        </li>
+        <li class="flex items-center">
+          <i class="fas fa-envelope w-5 text-gray-400"></i>
+          <span class="ml-2 text-gray-300">contato@strateup.com.br</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-gray-700 pt-8">
+    <div class="flex flex-col md:flex-row justify-between items-center">
+      <p class="text-gray-400 text-sm mb-4 md:mb-0">
+        &copy; 2025 StrateUp. Todos os direitos reservados.
+      </p>
+      <div class="flex space-x-6">
+        </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
