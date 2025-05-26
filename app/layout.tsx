@@ -1,94 +1,90 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import Analytics from "@/components/analytics/analytics"
-import { Suspense } from "react"
-import { ErrorBoundary } from "@/components/error-boundary"
-import { LoadingPage } from "@/components/ui/loading"
-import '@fortawesome/fontawesome-free/css/all.min.css'
-import './diagnostico/styles.css'
+// /tailwind.config.ts
+import type { Config } from "tailwindcss";
 
-const inter = Inter({ subsets: ["latin"] })
-
-export const metadata: Metadata = {
-  title: "StrateUp | Diagnóstico de Maturidade Digital",
-  description:
-    "Descubra como transformar sua estratégia digital com o diagnóstico personalizado da StrateUp. Resultados mensuráveis para seu negócio.",
-  keywords:
-    "maturidade digital, estratégia de marketing, diagnóstico empresarial, consultoria estratégica, marketing digital",
-  openGraph: {
-    title: "StrateUp | Diagnóstico de Maturidade Digital",
-    description: "Descubra como transformar sua estratégia digital com o diagnóstico personalizado da StrateUp.",
-    images: ["/images/og-image.jpg"],
-    type: "website",
+const config = {
+  darkMode: ["class"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+	],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        'strateup-blue': '#22457A', // Azul StrateUp
+        'strateup-orange': '#FF7800', // Laranja StrateUp
+        'strateup-green': '#4CAF50', // Verde (Exemplo - Ajuste se tiver)
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: '#22457A', // Mapeando Azul para primary
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: '#FF7800', // Mapeando Laranja para secondary
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+       fontFamily: { // Adicionando fontes
+         sans: ['var(--font-bricolage)', 'sans-serif'],
+         bricolage: ['var(--font-bricolage)', 'sans-serif'],
+         montserrat: ['var(--font-montserrat)', 'sans-serif'],
+         ibmplex: ['var(--font-ibmplex)', 'sans-serif'],
+       },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "StrateUp | Diagnóstico de Maturidade Digital",
-    description: "Descubra como transformar sua estratégia digital com o diagnóstico personalizado da StrateUp.",
-    images: ["/images/twitter-image.jpg"],
-  },
-    generator: 'v0.dev'
-}
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              name: "StrateUp",
-              description: "Consultoria estratégica para transformação digital de negócios",
-              url: "https://strateup.com.br",
-              logo: "https://strateup.com.br/images/logo.png",
-              sameAs: [
-                "https://www.facebook.com/strateup",
-                "https://www.instagram.com/strateup",
-                "https://www.linkedin.com/company/strateup",
-              ],
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: "São Paulo",
-                addressRegion: "SP",
-                addressCountry: "BR",
-              },
-              offers: {
-                "@type": "Offer",
-                name: "Diagnóstico de Maturidade Digital",
-                price: "0",
-                priceCurrency: "BRL",
-                availability: "https://schema.org/InStock",
-              },
-            }),
-          }}
-        />
-      </head>
-      <body className={inter.className}>
-        <ErrorBoundary>
-          <ThemeProvider attribute="class" defaultTheme="light">
-            <Suspense fallback={<LoadingPage />}>
-              {children}
-            </Suspense>
-          </ThemeProvider>
-          <Analytics />
-        </ErrorBoundary>
-      </body>
-    </html>
-  )
-}
+export default config;
