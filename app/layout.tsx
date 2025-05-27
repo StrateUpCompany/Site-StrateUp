@@ -1,90 +1,89 @@
-// /tailwind.config.ts
-import type { Config } from "tailwindcss";
+// /app/layout.tsx - AJUSTE NA IMPORTAÇÃO
+import type { Metadata } from "next";
+import { Bricolage_Grotesque, Montserrat, IBM_Plex_Sans, Roboto } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+// Correção aqui: import default para ChatbotWrapper, type LeadType continua nomeado
+import ChatbotWrapper, { type LeadType } from '@/components/chatbot/chatbot-wrapper';
+import { cn } from "@/lib/utils";
+import "./globals.css";
 
-const config = {
-  darkMode: ["class"],
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
-  prefix: "",
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-    extend: {
-      colors: {
-        'strateup-blue': '#22457A', // Azul StrateUp
-        'strateup-orange': '#FF7800', // Laranja StrateUp
-        'strateup-green': '#4CAF50', // Verde (Exemplo - Ajuste se tiver)
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: '#22457A', // Mapeando Azul para primary
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: '#FF7800', // Mapeando Laranja para secondary
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-       fontFamily: { // Adicionando fontes
-         sans: ['var(--font-bricolage)', 'sans-serif'],
-         bricolage: ['var(--font-bricolage)', 'sans-serif'],
-         montserrat: ['var(--font-montserrat)', 'sans-serif'],
-         ibmplex: ['var(--font-ibmplex)', 'sans-serif'],
-       },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
-    },
+// --- Configuração das Fontes StrateUp ---
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-bricolage',
+  weight: ['400', '700', '800'],
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-montserrat',
+  weight: ['700', '800'],
+});
+
+const ibmplex = IBM_Plex_Sans({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-ibmplex',
+  weight: ['400', '600'],
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-roboto',
+  weight: ['400', '500', '700'],
+});
+
+// --- Metadados Globais ---
+export const metadata: Metadata = {
+  title: {
+    default: "StrateUp Digital - Acelerando PMEs com Estratégia e Tecnologia",
+    template: "%s | StrateUp Digital",
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+  description: "A StrateUp Digital é seu Growth Advisor. Aplicamos frameworks precisos para aumentar seu faturamento, otimizar resultados e empoderar seu negócio.",
+  keywords: ["Growth Advisor", "Marketing Digital", "PMEs", "Aumento Faturamento", "Funil de Vendas", "Consultoria PME"],
+  authors: [{ name: "StrateUp Digital" }],
+};
 
-export default config;
+// --- Componente RootLayout ---
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const currentLeadType: LeadType = "morno";
+
+  return (
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          bricolage.variable,
+          montserrat.variable,
+          ibmplex.variable,
+          roboto.variable
+        )}
+      >
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          {/* <Header /> */}
+          <main className="flex min-h-screen flex-col items-center">
+            {children}
+          </main>
+          {/* <Footer /> */}
+          <ChatbotWrapper leadType={currentLeadType} />
+          <Toaster />
+          <Analytics />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

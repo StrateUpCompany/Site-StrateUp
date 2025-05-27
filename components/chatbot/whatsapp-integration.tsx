@@ -1,8 +1,11 @@
+// /components/chatbot/whatsapp-integration.tsx
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button" // Shadcn Button
+import { Input } from "@/components/ui/input"   // Shadcn Input
+import { Label } from "@/components/ui/label"   // Shadcn Label
+import { cn } from "@/lib/utils"
 
 interface WhatsAppIntegrationProps {
   onConfirm: (whatsapp: string) => void
@@ -15,46 +18,48 @@ export default function WhatsAppIntegration({ onConfirm, error }: WhatsAppIntegr
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
-    // Basic validation
-    if (!whatsapp || whatsapp.length < 10) {
+    if (!whatsapp || whatsapp.replace(/\D/g, '').length < 10) { // Validação mais robusta
       setIsValid(false)
       return
     }
-
     onConfirm(whatsapp)
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
     setWhatsapp(value)
-    setIsValid(value.length >= 10)
+    setIsValid(value.replace(/\D/g, '').length >= 10)
   }
 
   return (
-    <div className="w-full">
-      <h3 className="text-lg font-medium mb-3">Confirme seu WhatsApp</h3>
+    <div className="w-full space-y-4 p-1"> {/* Adicionado p-1 para respiro */}
+      <h3 className="text-lg font-montserrat font-semibold text-foreground mb-3"> {/* Usando font-montserrat StrateUp */}
+        Confirme seu WhatsApp
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">WhatsApp com DDD</label>
-          <input
+          <Label htmlFor="whatsapp-number" className="text-sm font-medium mb-1 text-foreground">WhatsApp com DDD</Label> {/* Usando Label StrateUp */}
+          <Input
             type="tel"
+            id="whatsapp-number"
             value={whatsapp}
             onChange={handleChange}
             placeholder="(11) 99999-9999"
-            className={`w-full p-2 border rounded-md ${!isValid ? "border-red-500" : "border-gray-300"}`}
+            className={cn(!isValid && "border-destructive focus-visible:ring-destructive")} // Estilo de erro com cor destructive
             required
           />
-          {!isValid && <p className="text-red-500 text-sm mt-1">Por favor, insira um número válido com DDD</p>}
-          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          {!isValid && <p className="text-sm text-destructive mt-1">Por favor, insira um número válido com DDD.</p>}
+          {error && <p className="text-sm text-destructive mt-1">{error}</p>}
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          className="w-full font-montserrat" // Usando Shadcn Button e fonte StrateUp
+          variant="default" // Usa a cor primary (StrateUp Blue)
+          disabled={!isValid || !whatsapp}
         >
           Confirmar
-        </button>
+        </Button>
       </form>
     </div>
   )

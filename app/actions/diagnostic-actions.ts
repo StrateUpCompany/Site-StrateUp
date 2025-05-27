@@ -1,7 +1,7 @@
 // /app/actions/diagnostic-actions.ts
 'use server';
 
-import { createClient } from '@/lib/supabase/server'; // Assumindo que você tem um server client
+import { createServerSupabaseClient as createClient } from '@/lib/supabase';; // Assumindo que você tem um server client
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 

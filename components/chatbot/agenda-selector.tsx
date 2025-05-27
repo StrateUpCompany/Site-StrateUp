@@ -1,21 +1,46 @@
+// /components/chatbot/agenda-selector.tsx
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button" // Shadcn Button
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select" // Shadcn Select
+import { Label } from "@/components/ui/label" // Shadcn Label
+import { cn } from "@/lib/utils" // Utilitário para classes condicionais
 
 interface AgendaSelectorProps {
   onSelect: (data: string, horario: string) => void
+}
+
+// Função auxiliar para gerar datas disponíveis (mantida)
+function generateAvailableDates() {
+  const dates = []
+  const today = new Date()
+  let daysAdded = 0
+  let businessDaysCount = 0
+
+  while (businessDaysCount < 5) {
+    const date = new Date(today)
+    date.setDate(today.getDate() + daysAdded)
+
+    if (date.getDay() !== 0 && date.getDay() !== 6) { // Skip weekends
+      const formattedDate = date.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' })
+      const dayName = date.toLocaleDateString("pt-BR", { weekday: "long" })
+      dates.push({
+        value: formattedDate,
+        label: `${formattedDate} (${dayName.charAt(0).toUpperCase() + dayName.slice(1)})`,
+      })
+      businessDaysCount++;
+    }
+    daysAdded++
+  }
+  return dates
 }
 
 export default function AgendaSelector({ onSelect }: AgendaSelectorProps) {
   const [selectedDate, setSelectedDate] = useState<string>("")
   const [selectedTime, setSelectedTime] = useState<string>("")
 
-  // Generate available dates (next 5 business days)
   const availableDates = generateAvailableDates()
-
-  // Generate available times
   const availableTimes = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
 
   function handleSubmit(e: React.FormEvent) {
@@ -26,79 +51,63 @@ export default function AgendaSelector({ onSelect }: AgendaSelectorProps) {
   }
 
   return (
-    <div className="w-full">
-      <h3 className="text-lg font-medium mb-3">Selecione uma data e horário</h3>
+    <div className="w-full space-y-4 p-1"> {/* Adicionado p-1 para respiro */}
+      <h3 className="text-lg font-montserrat font-semibold text-foreground mb-3"> {/* Usando font-montserrat StrateUp */}
+        Selecione uma data e horário
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Data</label>
-          <select
+          <Label htmlFor="agenda-date" className="text-sm font-medium mb-1 text-foreground">Data</Label> {/* Usando Label StrateUp */}
+          <Select
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            onValueChange={setSelectedDate}
             required
+            name="agenda-date"
           >
-            <option value="">Selecione uma data</option>
-            {availableDates.map((date) => (
-              <option key={date.value} value={date.value}>
-                {date.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione uma data" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableDates.map((date) => (
+                <SelectItem key={date.value} value={date.value}>
+                  {date.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Horário</label>
-          <select
+          <Label htmlFor="agenda-time" className="text-sm font-medium mb-1 text-foreground">Horário</Label> {/* Usando Label StrateUp */}
+          <Select
             value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            onValueChange={setSelectedTime}
             required
             disabled={!selectedDate}
+            name="agenda-time"
           >
-            <option value="">Selecione um horário</option>
-            {availableTimes.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione um horário" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableTimes.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={!selectedDate || !selectedTime}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+          className="w-full font-montserrat" // Usando Shadcn Button e fonte StrateUp
+          variant="default" // Usa a cor primary (StrateUp Blue)
         >
           Confirmar
-        </button>
+        </Button>
       </form>
     </div>
   )
-}
-
-// Helper function to generate available dates
-function generateAvailableDates() {
-  const dates = []
-  const today = new Date()
-  let daysAdded = 0
-
-  while (dates.length < 5) {
-    const date = new Date(today)
-    date.setDate(today.getDate() + daysAdded)
-
-    // Skip weekends
-    if (date.getDay() !== 0 && date.getDay() !== 6) {
-      const formattedDate = date.toLocaleDateString("pt-BR")
-      const dayName = date.toLocaleDateString("pt-BR", { weekday: "long" })
-
-      dates.push({
-        value: formattedDate,
-        label: `${formattedDate} (${dayName})`,
-      })
-    }
-
-    daysAdded++
-  }
-
-  return dates
 }
