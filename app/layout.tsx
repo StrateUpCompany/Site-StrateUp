@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 // Correção aqui: import default para ChatbotWrapper, type LeadType continua nomeado
-import ChatbotWrapper, { type LeadType } from '@/components/chatbot/chatbot-wrapper';
+import ChatbotWrapper, { type LeadType } from '@/components/features/chatbot/chatbot-wrapper';
 import { cn } from "@/core/utils";
 import "./globals.css";
 
