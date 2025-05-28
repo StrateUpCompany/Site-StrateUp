@@ -1,6 +1,6 @@
 // /app/(funnels)/layout.tsx - IMPORTAÇÃO DO LOGO CORRIGIDA
 import React from 'react';
-import Logo from '@/components/ui/logo'; // <-- CORREÇÃO AQUI: Importação default
+import Logo from '@/components/shared/logo'; // <-- CORREÇÃO AQUI: Importação default
 
 // Este é um layout minimalista para funis.
 // Ele remove o Header e Footer padrão para focar na conversão.

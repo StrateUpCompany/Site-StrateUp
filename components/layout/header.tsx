@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import Logo from "@/components/ui/logo"
+import { LanguageSwitcher } from "@/components/shared/language-switcher"
+import Logo from "@/components/shared/logo"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

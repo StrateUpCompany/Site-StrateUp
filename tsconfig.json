@@ -18,9 +18,19 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./*"]
+    // --- INÍCIO DA CONFIGURAÇÃO CORRETA DOS ALIASES ---
+    "baseUrl": ".", // ESSENCIAL para que os 'paths' funcionem corretamente.
+    "paths": {     // ALIASES ESPECÍFICOS PARA A NOVA ESTRUTURA ORGANIZADA
+      "@/components/*": ["components/*"],
+      "@/core/*": ["core/*"],
+      "@/app/*": ["app/*"],
+      "@/public/*": ["public/*"],
+      "@/styles/*": ["styles/*"],
+      "@/translations/*": ["translations/*"]
+      // Adicione outros aliases específicos se surgirem novas pastas na raiz
+      // que precisem ser referenciadas desta forma.
     }
+    // --- FIM DA CONFIGURAÇÃO CORRETA DOS ALIASES ---
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

@@ -1,65 +1,43 @@
-const en = {
-  common: {
-    home: "Home",
-    services: "Services",
-    diagnostic: "Diagnostic",
-    blog: "Blog",
-    about: "About Us",
-    contact: "Contact",
-    language: "Language",
-  },
-  home: {
-    hero: {
-      title: "Transform Your Digital Strategy",
-      subtitle: "Personalized diagnostic to identify opportunities and accelerate your business growth.",
-      cta: {
-        primary: "Free Diagnostic",
-        secondary: "Contact Us",
-      },
-    },
-    benefits: {
-      title: "Proven Benefits for Your Business",
-      subtitle:
-        "More than 200 companies have already transformed their results with our exclusive methodology. See what you can achieve:",
-    },
-    howItWorks: {
-      title: "How We Transform Your Business",
-      subtitle:
-        "Our exclusive methodology was developed to ensure fast and sustainable results, focusing on practical implementation and measurable ROI.",
-    },
-  },
-  diagnostic: {
-    hero: {
-      title: "Digital Maturity Diagnostic",
-      subtitle: "Discover your company's digital maturity level and receive personalized recommendations to grow.",
-    },
-    form: {
-      title: "Fill out the form below",
-      steps: {
-        company: "Company Information",
-        digital: "Digital Presence",
-        marketing: "Marketing & Analytics",
-        goals: "Business Goals",
-      },
-      fields: {
-        companyName: "Company Name",
-        industry: "Industry",
-        companySize: "Company Size",
-        name: "Your Name",
-        email: "Your Email",
-      },
-      buttons: {
-        next: "Next",
-        back: "Back",
-        submit: "Submit Diagnostic",
-      },
-    },
-  },
-  footer: {
-    copyright: "© 2023 StrateUp. All rights reserved.",
-    privacy: "Privacy Policy",
-    terms: "Terms of Use",
-  },
+const translations = {
+  // Common
+  'home': 'Home',
+  'blog': 'Blog',
+  'contact': 'Contact',
+  'about': 'About',
+  'services': 'Services',
+  'read_more': 'Read more',
+  'loading': 'Loading...',
+  'error': 'Error',
+  'success': 'Success',
+  
+  // Blog
+  'blog_title': 'StrateUp Blog',
+  'blog_description': 'Articles and news about strategy and innovation',
+  'blog_categories': 'Categories',
+  'blog_recent_posts': 'Recent Posts',
+  'blog_featured_posts': 'Featured Posts',
+  'blog_all_posts': 'All Posts',
+  'blog_no_posts': 'No posts found',
+  'blog_no_categories': 'No categories found',
+  'blog_post_date': 'Date',
+  'blog_post_author': 'Author',
+  'blog_post_category': 'Category',
+  'blog_post_tags': 'Tags',
+  'blog_post_related': 'Related Posts',
+  
+  // Newsletter
+  'newsletter_title': 'Subscribe to Newsletter',
+  'newsletter_description': 'Get the latest news and updates',
+  'newsletter_placeholder': 'Your best email',
+  'newsletter_button': 'Subscribe',
+  'newsletter_success': 'Subscription successful!',
+  'newsletter_error': 'Error subscribing',
+  
+  // Footer
+  'footer_rights': 'All rights reserved',
+  'footer_privacy': 'Privacy Policy',
+  'footer_terms': 'Terms of Use',
+  'footer_contact': 'Contact Us'
 }
 
-export default en
+export default translations

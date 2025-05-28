@@ -1,6 +1,6 @@
 // /app/(funnels)/diagnostico/page.tsx
 import React from 'react';
-import { DiagnosticForm } from '@/components/diagnostic/diagnostic-form';
+import { DiagnosticForm } from '@/components/features/diagnostic/diagnostic-form';
 import { Metadata } from 'next';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 

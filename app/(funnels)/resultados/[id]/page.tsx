@@ -1,9 +1,9 @@
 // /app/(funnels)/resultados/[id]/page.tsx
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { getDiagnosticResults } from '@/app/actions/diagnostic-actions';
+import { getDiagnosticResults } from '@/core/actions/diagnostic-actions';
 import { Metadata } from 'next';
-import { ResultsOverview } from '@/components/diagnostic/results-overview';
+import { ResultsOverview } from '@/components/features/diagnostic/results-overview';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { validateEmail, isValidEmail } from "@/lib/security"
+import { validateEmail, isValidEmail } from "@/core/utils/security"
 
 export default function SecurityValidator() {
   const [emailToTest, setEmailToTest] = useState("test@example.com")
