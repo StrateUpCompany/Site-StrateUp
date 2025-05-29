@@ -1,66 +1,38 @@
-const pt = {
+const ptTranslations = {
   common: {
-    home: "Home",
-    services: "Serviços",
-    diagnostic: "Diagnóstico",
-    blog: "Blog",
-    about: "Sobre Nós",
-    contact: "Contato",
-    language: "Idioma",
+    welcome: "Bem-vindo à StrateUp",
+    learnMore: "Saiba mais",
+    contactUs: "Entre em contato",
+    schedule: "Agendar consultoria",
   },
   home: {
     hero: {
-      title: "Transforme sua Estratégia Digital",
-      subtitle: "Diagnóstico personalizado para identificar oportunidades e acelerar o crescimento do seu negócio.",
-      cta: {
-        primary: "Diagnóstico Gratuito",
-        secondary: "Fale Conosco",
-      },
+      title: "Transforme sua estratégia digital",
+      subtitle: "Resultados mensuráveis para seu negócio",
+      cta: "Fazer diagnóstico gratuito",
     },
-    benefits: {
-      title: "Benefícios Comprovados para seu Negócio",
-      subtitle:
-        "Mais de 200 empresas já transformaram seus resultados com nossa metodologia exclusiva. Veja o que você pode conquistar:",
+    services: {
+      title: "Nossos serviços",
+      description: "Soluções completas para seu crescimento digital",
     },
-    howItWorks: {
-      title: "Como Transformamos seu Negócio",
-      subtitle:
-        "Nossa metodologia exclusiva foi desenvolvida para garantir resultados rápidos e sustentáveis, com foco em implementação prática e ROI mensurável.",
+    testimonials: {
+      title: "O que nossos clientes dizem",
+      description: "Histórias de sucesso de quem confia na StrateUp",
     },
   },
   diagnostic: {
-    hero: {
-      title: "Diagnóstico de Maturidade Digital",
-      subtitle:
-        "Descubra o nível de maturidade digital da sua empresa e receba recomendações personalizadas para crescer.",
-    },
-    form: {
-      title: "Preencha o formulário abaixo",
-      steps: {
-        company: "Informações da Empresa",
-        digital: "Presença Digital",
-        marketing: "Marketing & Analytics",
-        goals: "Objetivos de Negócio",
-      },
-      fields: {
-        companyName: "Nome da Empresa",
-        industry: "Setor de Atuação",
-        companySize: "Tamanho da Empresa",
-        name: "Seu Nome",
-        email: "Seu Email",
-      },
-      buttons: {
-        next: "Próximo",
-        back: "Voltar",
-        submit: "Enviar Diagnóstico",
-      },
-    },
+    title: "Diagnóstico de Maturidade Digital",
+    description: "Descubra como está sua presença digital e receba recomendações personalizadas",
+    start: "Iniciar diagnóstico",
   },
-  footer: {
-    copyright: "© 2023 StrateUp. Todos os direitos reservados.",
-    privacy: "Política de Privacidade",
-    terms: "Termos de Uso",
+  contact: {
+    title: "Entre em contato",
+    name: "Nome",
+    email: "E-mail",
+    message: "Mensagem",
+    send: "Enviar",
+    success: "Mensagem enviada com sucesso!",
   },
 }
 
-export default pt
+export default ptTranslations
